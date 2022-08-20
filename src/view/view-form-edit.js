@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import { createElement } from '../render.js';
 const createFormEditTemplate = () => `
 <li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
