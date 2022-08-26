@@ -3,10 +3,10 @@ import ViewSort from './view/view-sort.js';
 import { render } from './render.js';
 import Presenter from './presenter/presenter.js';
 
-const tripFilters = document.querySelector('.trip-controls__filters');
-const tripEvents = document.querySelector('.trip-events');
-const presenter = new Presenter(tripEvents);
+const tripFiltersSection = document.querySelector('.trip-controls__filters');
+const tripEventsSection = document.querySelector('.trip-events');
+const presenter = new Presenter(tripEventsSection);
 
-render(new ViewFilters(), tripFilters);
-render(new ViewSort(), tripEvents);
+render(new ViewFilters(), tripFiltersSection);
+render(new ViewSort(), tripEventsSection);
 presenter.init();
