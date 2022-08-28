@@ -13,8 +13,8 @@ const createFormEditTemplate = (point, destination, offers) => {
     <input id="event-type-${ type }-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${ type }" ${ type === pointType ? 'checked=""' : '' }>
     <label class="event__type-label  event__type-label--${ type }" for="event-type-${ type }-1">${ type[0].toUpperCase() }${ type.slice(1) }</label>
   </div>`)).join('');
-  const listDestinationsMarkup = DESTINATIONS.map((destinationItem)=>(`<option value="${ destinationItem.name} "></option>`)).join('');
-  const listOffersMarkup = allOffers.map((offer)=>{
+  const listDestinationsMarkup = DESTINATIONS.map((destinationItem) => (`<option value="${ destinationItem.name} "></option>`)).join('');
+  const listOffersMarkup = allOffers.map((offer) => {
     const selected = (selectedOffers.find((selectedOffer) => selectedOffer.id === offer.id)) ? 'checked=""' : '';
     return (`
     <div class="event__offer-selector">
