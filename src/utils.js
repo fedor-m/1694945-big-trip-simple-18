@@ -1,18 +1,26 @@
 export const getRandomInteger = (min, max) => {
-  if (isNaN(min) || isNaN(max) || min < 0 || min >= max) { return false; }
+  if (isNaN(min) || isNaN(max) || min < 0 || min >= max) {
+    return false;
+  }
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
-export const getRandomArrayElement = (arr) => arr[getRandomInteger(0, arr.length - 1)];
-export const getRandomArray = (arr) => {
-  const randomArray = [];
-  const count = getRandomInteger(1, arr.length);
-  const arrLength = arr.length;
-  while (randomArray.length < count ) {
-    const index = getRandomInteger(0, arrLength - 1);
-    const element = arr[index];
-    if (!randomArray.includes(element)) {
-      randomArray.push(element);
-    }
+export const getRandomArrayElement = (elements) => {
+  if (!Array.isArray(elements)) {
+    return false;
   }
-  return randomArray;
+  return elements[getRandomInteger(0, elements.length - 1)];
+};
+export const shuffleArray = (elements) => {
+  if (!Array.isArray(elements)) {
+    return false;
+  }
+  const copiedElements = elements.slice();
+  for (let i = copiedElements.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copiedElements[i], copiedElements[j]] = [
+      copiedElements[j],
+      copiedElements[i],
+    ];
+  }
+  return copiedElements;
 };
