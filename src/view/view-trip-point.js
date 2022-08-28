@@ -7,11 +7,11 @@ const createTripPointTemplate = (point, destination, offers) => {
   let offersListItemsMarkup = '';
   for (const offer of options)
   {
-    offersListItemsMarkup += (`<li class="event__offer">
-        <span class="event__offer-title">${ offer.title }</span>`);
-    offersListItemsMarkup += (offer.price !== undefined ? ` +€&nbsp;
-        <span class="event__offer-price">${ offer.price }</span>` : '');
-    offersListItemsMarkup += ('</li>');
+    offersListItemsMarkup += (`
+      <li class="event__offer">
+        <span class="event__offer-title">${ offer.title }</span> ${ (offer.price !== undefined ? ` +€&nbsp; <span class="event__offer-price">${ offer.price }</span>` : '')}
+      </li>`
+    ) ;
   }
   return `
   <li class="trip-events__item">
