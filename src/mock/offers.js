@@ -53,13 +53,7 @@ export const generateOffers = () => {
   return offers;
 };
 
-export const generateOffersByType = (type, offers) => {
-  const generatedOffers = [];
-  for (const offer of offers) {
-    generatedOffers.push(OFFERS.find((offersItem) => offer === offersItem.id));
-  }
-  return {
-    type,
-    offers: generatedOffers,
-  };
-};
+export const generateOffersByType = (type, offers) => ({
+  type,
+  offers: offers.map((offer)=>OFFERS.find((offersItem)=>offer === offersItem.id)),
+});
