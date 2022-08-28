@@ -8,7 +8,7 @@ const createFormEditTemplate = (point, destination, offers) => {
   const { name, description } = destination;
   const { offers: selectedOffers } = offers;
   const allOffers = OFFERS.filter((offer)=>offer.id !== 0);
-  const listTypesMarkup = TYPES.map((type)=>(`
+  const listTypesMarkup = TYPES.map((type) => (`
   <div class="event__type-item">
     <input id="event-type-${ type }-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${ type }" ${ type === pointType ? 'checked=""' : '' }>
     <label class="event__type-label  event__type-label--${ type }" for="event-type-${ type }-1">${ type[0].toUpperCase() }${ type.slice(1) }</label>
