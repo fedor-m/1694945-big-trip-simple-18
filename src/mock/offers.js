@@ -1,3 +1,4 @@
+import { shuffleArray, getRandomInteger } from '../utils.js';
 export const OFFERS = [
   {
     id: 0,
@@ -42,9 +43,23 @@ export const OFFERS = [
     id: 8,
     title: 'Lunch in city',
     price: 30,
-  }
+  },
 ];
-export const generateOffers = (type) => ({
-  type,
-  offers: OFFERS
-});
+export const generateOffers = () => {
+  let offers = shuffleArray(OFFERS)
+    .slice(0, getRandomInteger(1, OFFERS.length))
+    .map((offer) => offer.id);
+  offers = offers.includes(0) ? [0] : offers;
+  return offers;
+};
+
+export const generateOffersByType = (type, offers) => {
+  const generatedOffers = [];
+  for (const offer of offers) {
+    generatedOffers.push(OFFERS.find((offersItem) => offer === offersItem.id));
+  }
+  return {
+    type,
+    offers: generatedOffers,
+  };
+};
