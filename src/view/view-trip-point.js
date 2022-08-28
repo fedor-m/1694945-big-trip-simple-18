@@ -3,16 +3,16 @@ import dayjs from 'dayjs';
 const createTripPointTemplate = (point, destination, offers) => {
   const { type, dateFrom, dateTo, basePrice } = point;
   const { name: destinationName } = destination;
-  let offersList = [];
-  for (const offer of offers)
+  const options = offers.offers;
+  let offersListItemsMarkup = '';
+  for (const offer of options)
   {
-    offersList.push(`<li class="event__offer">
+    offersListItemsMarkup += (`<li class="event__offer">
         <span class="event__offer-title">${ offer.title }</span>`);
-    offersList.push(offer.price !== undefined ? ` +€&nbsp;
+    offersListItemsMarkup += (offer.price !== undefined ? ` +€&nbsp;
         <span class="event__offer-price">${ offer.price }</span>` : '');
-    offersList.push('</li>');
+    offersListItemsMarkup += ('</li>');
   }
-  offersList = offersList.join('');
   return `
   <li class="trip-events__item">
     <div class="event">
@@ -33,7 +33,7 @@ const createTripPointTemplate = (point, destination, offers) => {
       </p>
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        ${offersList}
+        ${ offersListItemsMarkup }
       </ul>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
