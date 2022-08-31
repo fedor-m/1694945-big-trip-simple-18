@@ -6,7 +6,7 @@ import { generateOffersByType } from '../mock/offers.js';
 import ViewTripPoint from '../view/view-trip-point.js';
 import ViewFormCreate from '../view/view-form-create.js';
 
-export default class PresenterEvents {
+export default class EventsPresenter {
   constructor(presenterContainer, model) {
     this.presenterContainer = presenterContainer;
     this.model = model;
@@ -31,14 +31,14 @@ export default class PresenterEvents {
         localPoint.destination,
         localPoint.offers,
       ),
-      eventsList.getElement(),
+      eventsList.element,
     );
     for (const point of points) {
       const destination = generateDestination(point.destination);
       const offers = generateOffersByType(point.type, point.offers);
       render(
         new ViewTripPoint(point, destination, offers),
-        eventsList.getElement(),
+        eventsList.element,
       );
     }
     render(
@@ -47,7 +47,7 @@ export default class PresenterEvents {
         localPoint.destination,
         localPoint.offers,
       ),
-      eventsList.getElement(),
+      eventsList.element,
     );
   }
 }
