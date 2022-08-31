@@ -1,7 +1,7 @@
 import { generatePoint } from '../mock/point.js';
 import { generateLocalPoint } from '../mock/local-point.js';
 
-export default class ModelPoints {
+export default class PointsModel {
   constructor(length) {
     this.length = length;
   }
