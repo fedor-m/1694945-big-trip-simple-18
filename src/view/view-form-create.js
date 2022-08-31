@@ -26,7 +26,7 @@ const createFormCreateTemplate = (point, destination, offers) => {
       </label>
     </div>`);
   }).join('');
-  const listPicturesMarkup = pictures.map((picture) => (`<img class="event__photo" src="${ picture.src }" alt="Event photo"></img>`)).join();
+  const listPicturesMarkup = pictures.map((picture) => (`<img class="event__photo" src="${ picture.src }" alt="Event photo"></img>`)).join('');
   return `
   <li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
