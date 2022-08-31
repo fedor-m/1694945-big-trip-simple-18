@@ -89,25 +89,30 @@ const createFormEditTemplate = (point, destination, offers) => {
 `;
 };
 export default class ViewFormEdit {
+  #element = null;
+  #point = null;
+  #destination = null;
+  #offers = null;
+
   constructor(point, destination, offers){
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
   }
 
-  getTemplate() {
-    return createFormEditTemplate(this.point, this.destination, this.offers);
+  get template() {
+    return createFormEditTemplate(this.#point, this.#destination, this.#offers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
