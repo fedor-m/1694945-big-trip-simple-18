@@ -3,16 +3,18 @@ const createTripEventsListTemplate = () => `
     <ul class="trip-events__list"></ul>
   `;
 export default class ViewTripEventsList {
-  getTemplate() {
+  #element = null;
+
+  get template() {
     return createTripEventsListTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {

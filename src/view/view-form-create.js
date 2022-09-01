@@ -26,7 +26,7 @@ const createFormCreateTemplate = (point, destination, offers) => {
       </label>
     </div>`);
   }).join('');
-  const listPicturesMarkup = pictures.map((picture) => (`<img class="event__photo" src="${ picture.src }" alt="Event photo"></img>`)).join();
+  const listPicturesMarkup = pictures.map((picture) => (`<img class="event__photo" src="${ picture.src }" alt="Event photo"></img>`)).join('');
   return `
   <li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -94,25 +94,30 @@ const createFormCreateTemplate = (point, destination, offers) => {
   </li>`;
 };
 export default class ViewFormCreate {
-  constructor(point, destination, offers) {
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
+  #element = null;
+  #point = null;
+  #destination = null;
+  #offers = null;
+
+  constructor(point, destination, offers){
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
   }
 
-  getTemplate() {
-    return createFormCreateTemplate(this.point, this.destination, this.offers);
+  get template() {
+    return createFormCreateTemplate(this.#point, this.#destination, this.#offers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
