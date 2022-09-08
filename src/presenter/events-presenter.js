@@ -1,4 +1,4 @@
-import { render } from '../render.js';
+import { render } from '../framework/render.js';
 import ViewSort from '../view/view-sort.js';
 import ViewTripEventsList from '../view/view-trip-events-list-create.js';
 import { generateDestination } from '../mock/destinations.js';
