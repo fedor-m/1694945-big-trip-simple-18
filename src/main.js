@@ -1,6 +1,6 @@
 import { getRandomInteger } from './utils.js';
 import ViewFilters from './view/view-filters.js';
-import { render } from './render.js';
+import { render } from './framework/render.js';
 import PointsModel from './model/points-model.js';
 import EventsPresenter from './presenter/events-presenter';
 
