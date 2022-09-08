@@ -94,7 +94,7 @@ const createFormCreateTemplate = (point, destination, offers) => {
   </li>`;
 };
 export default class ViewFormCreate extends AbstractView {
-  #element = null;
+
   #point = null;
   #destination = null;
   #offers = null;
@@ -109,4 +109,15 @@ export default class ViewFormCreate extends AbstractView {
   get template() {
     return createFormCreateTemplate(this.#point, this.#destination, this.#offers);
   }
+
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+  };
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
+
 }
