@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { TYPES } from '../mock/types.js';
 import { DESTINATIONS } from '../mock/destinations.js';
 import { OFFERS } from '../mock/offers.js';
@@ -91,13 +91,14 @@ const createFormEditTemplate = (point, destination, offers) => {
 </li>
 `;
 };
-export default class ViewFormEdit {
+export default class ViewFormEdit extends AbstractView {
   #element = null;
   #point = null;
   #destination = null;
   #offers = null;
 
   constructor(point, destination, offers){
+    super();
     this.#point = point;
     this.#destination = destination;
     this.#offers = offers;
@@ -105,17 +106,5 @@ export default class ViewFormEdit {
 
   get template() {
     return createFormEditTemplate(this.#point, this.#destination, this.#offers);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

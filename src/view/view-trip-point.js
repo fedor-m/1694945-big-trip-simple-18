@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import dayjs from 'dayjs';
 const createTripPointTemplate = (point, destination, offers) => {
   const { type, dateFrom, dateTo, basePrice } = point;
@@ -41,13 +41,14 @@ const createTripPointTemplate = (point, destination, offers) => {
   </div>
 </li>`;
 };
-export default class ViewTripPoint {
+export default class ViewTripPoint extends AbstractView {
   #element = null;
   #point = null;
   #destination = null;
   #offers = null;
 
   constructor(point, destination, offers){
+    super();
     this.#point = point;
     this.#destination = destination;
     this.#offers = offers;
@@ -55,17 +56,5 @@ export default class ViewTripPoint {
 
   get template() {
     return createTripPointTemplate(this.#point, this.#destination, this.#offers);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
