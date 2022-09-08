@@ -1,4 +1,4 @@
-import { render } from '../framework/render.js';
+import { render, replace } from '../framework/render.js';
 import ViewSort from '../view/view-sort.js';
 import ViewTripEventsList from '../view/view-trip-events-list-create.js';
 import { generateDestination } from '../mock/destinations.js';
@@ -40,17 +40,11 @@ export default class EventsPresenter {
     const pointEditComponent = new ViewFormEdit(point, destination, offers);
 
     const replacePointToForm = () => {
-      this.#eventsList.element.replaceChild(
-        pointEditComponent.element,
-        pointComponent.element,
-      );
+      replace(pointEditComponent, pointComponent);
     };
 
     const replaceFormToPoint = () => {
-      this.#eventsList.element.replaceChild(
-        pointComponent.element,
-        pointEditComponent.element,
-      );
+      replace(pointComponent,pointEditComponent);
     };
 
     const onEscKeyDown = (evt) => {
