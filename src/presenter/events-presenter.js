@@ -1,12 +1,12 @@
 import { render, replace } from '../framework/render.js';
-
 import ViewTripEventsList from '../view/view-trip-events-list-create.js';
 import { generateDestination } from '../mock/destinations.js';
 import { generateOffersByType } from '../mock/offers.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewTripPoint from '../view/view-trip-point.js';
 import ViewFormEdit from '../view/view-form-edit.js';
-const ESCAPE_CODE = 'Escape';
+import { isEscKey } from '../utils.js';
+
 export default class EventsPresenter {
   #presenterContainer;
   #model;
@@ -30,8 +30,6 @@ export default class EventsPresenter {
     }
   }
 
-  #isEscKey = (key) => ESCAPE_CODE.indexOf(key) > -1;
-
   #renderPoint = (point, destination, offers) => {
     const pointComponent = new ViewTripPoint(point, destination, offers);
     const pointEditComponent = new ViewFormEdit(point, destination, offers);
@@ -45,7 +43,7 @@ export default class EventsPresenter {
     };
 
     const onEscKeyDown = (evt) => {
-      if (this.#isEscKey(evt.key)) {
+      if (isEscKey(evt.key)) {
         evt.preventDefault();
         replaceFormToPoint();
         document.removeEventListener('keydown', onEscKeyDown);
