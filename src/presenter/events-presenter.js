@@ -20,10 +20,10 @@ export default class EventsPresenter {
   init = () => {
     const points = this.#model.points;
     if (points.length === 0) {
-      render(new ViewNoEvents(), this.#presenterContainer);
+      this.#renderNoEvents();
       return;
     }
-    render(this.#eventsList, this.#presenterContainer);
+    this.#renderEventsList();
     const sortTypesModel = new SortTypesModel(SORT_TYPES);
     const sortPresenter = new SortPresenter(this.#eventsList.element, sortTypesModel);
     sortPresenter.init();
@@ -34,8 +34,16 @@ export default class EventsPresenter {
     }
   };
 
+  #renderNoEvents = () => {
+    render(new ViewNoEvents(), this.#presenterContainer);
+  };
+
+  #renderEventsList = () => {
+    render(this.#eventsList, this.#presenterContainer);
+  };
+
   #renderPoint = (point, destination, offers) => {
-    const eventPresenter = new PointPresenter(this.#eventsList.element);
-    eventPresenter.init(point, destination, offers);
+    const pointPresenter = new PointPresenter(this.#eventsList);
+    pointPresenter.init(point, destination, offers);
   };
 }
