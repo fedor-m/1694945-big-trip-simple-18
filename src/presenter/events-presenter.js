@@ -12,6 +12,7 @@ export default class EventsPresenter {
   #presenterContainer;
   #model;
   #eventsList = new ViewTripEventsList();
+  #pointPresenters = new Map();
   constructor(presenterContainer, model) {
     this.#presenterContainer = presenterContainer;
     this.#model = model;
@@ -24,14 +25,8 @@ export default class EventsPresenter {
       return;
     }
     this.#renderEventsList();
-    const sortTypesModel = new SortTypesModel(SORT_TYPES);
-    const sortPresenter = new SortPresenter(this.#eventsList.element, sortTypesModel);
-    sortPresenter.init();
-    for (const point of points) {
-      const destination = generateDestination(point.destination);
-      const offers = generateOffersByType(point.type, point.offers);
-      this.#renderPoint(point, destination, offers);
-    }
+    this.#renderSortTypes();
+    this.#renderPoints(points);
   };
 
   #renderNoEvents = () => {
@@ -42,8 +37,23 @@ export default class EventsPresenter {
     render(this.#eventsList, this.#presenterContainer);
   };
 
+  #renderSortTypes = () => {
+    const sortTypesModel = new SortTypesModel(SORT_TYPES);
+    const sortPresenter = new SortPresenter(this.#eventsList.element, sortTypesModel);
+    sortPresenter.init();
+  };
+
+  #renderPoints = (points) => {
+    for (const point of points) {
+      const destination = generateDestination(point.destination);
+      const offers = generateOffersByType(point.type, point.offers);
+      this.#renderPoint(point, destination, offers);
+    }
+  };
+
   #renderPoint = (point, destination, offers) => {
-    const pointPresenter = new PointPresenter(this.#eventsList);
+    const pointPresenter = new PointPresenter(this.#eventsList.element);
     pointPresenter.init(point, destination, offers);
+    this.#pointPresenters.set(point.id, pointPresenter);
   };
 }
