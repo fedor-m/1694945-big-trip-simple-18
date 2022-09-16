@@ -10,8 +10,8 @@ export default class FiltersModel {
     {
       return FILTERS.map((filter)=>({
         'name': filter,
-        'enabled': !!filterEnabledOnNoEvents.find((item)=>filter === item),
-        'checked': !!filterEnabledOnNoEvents.find((item)=>filter === item),
+        'enabled': filter === filterEnabledOnNoEvents,
+        'checked': filter === filterEnabledOnNoEvents,
       }));
     }
     return FILTERS.map((filter)=>({
