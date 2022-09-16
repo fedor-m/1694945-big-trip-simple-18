@@ -2,16 +2,24 @@ import { render, replace, remove } from '../framework/render.js';
 import ViewTripPoint from '../view/view-trip-point.js';
 import ViewFormEdit from '../view/view-form-edit.js';
 import { isEscKey } from '../utils.js';
+
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
 export default class PointPresenter {
   #eventsList;
   #changeData;
+  #changeMode = null;
   #pointComponent = null;
   #pointEditComponent = null;
   #point = null;
-  constructor(eventsList, changeData)
+  #mode = Mode.DEFAULT;
+  constructor(eventsList, changeData, changeMode)
   {
     this.#eventsList = eventsList;
     this.#changeData = changeData;
+    this.#changeMode = changeMode;
   }
 
   init = (point) => {
@@ -33,13 +41,11 @@ export default class PointPresenter {
       return;
     }
 
-    // Проверка на наличие в DOM необходима,
-    // чтобы не пытаться заменить то, что не было отрисовано
-    if (this.#eventsList.contains(prevPointComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#eventsList.contains(prevPointEditComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#pointEditComponent, prevPointEditComponent);
     }
 
@@ -52,14 +58,23 @@ export default class PointPresenter {
     remove(this.#pointEditComponent);
   };
 
+  resetView = () => {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToPoint();
+    }
+  };
+
   #replacePointToForm = () => {
     replace(this.#pointEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#onEscKeyDown);
+    this.#changeMode();
+    this.#mode = Mode.EDITING;
   };
 
   #replaceFormToPoint = () => {
     replace(this.#pointComponent, this.#pointEditComponent);
     document.removeEventListener('keydown', this.#onEscKeyDown);
+    this.#mode = Mode.DEFAULT;
   };
 
   #onEscKeyDown = (evt) => {
