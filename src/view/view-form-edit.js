@@ -118,13 +118,23 @@ export default class ViewFormEdit extends AbstractView {
     this._callback.formSubmit();
   };
 
-  setEditClickHandler = (callback) => {
-    this._callback.editClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  setFormClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formClickHandler);
   };
 
-  #editClickHandler = (evt) => {
+  #formClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.editClick();
+    this._callback.click();
+  };
+
+  setFormResetHandler = (callback) => {
+    this._callback.formReset = callback;
+    this.element.querySelector('form').addEventListener('reset', this.#formResetHandler);
+  };
+
+  #formResetHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formReset();
   };
 }
