@@ -1,19 +1,21 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { generateDestination } from '../mock/destinations.js';
+import { generateOffersByType } from '../mock/offers.js';
 import { TYPES } from '../mock/types.js';
 import { DESTINATIONS } from '../mock/destinations.js';
 import { OFFERS } from '../mock/offers.js';
 import dayjs from 'dayjs';
-const createFormEditTemplate = (point, destination, offers) => {
+const createFormEditTemplate = (point) => {
   const { type: pointType, dateFrom, dateTo, basePrice } = point;
-  const { name, description } = destination;
-  const { offers: selectedOffers } = offers;
-  const allOffers = OFFERS.filter((offer)=>offer.id !== 0);
+  const { name: destinationName, description } = generateDestination(point.destination);
+  const selectedOffers = generateOffersByType(point.type, point.offers).offers;
+  const allOffers = OFFERS.filter((offer) => offer.id !== 0);
   const listTypesMarkup = TYPES.map((type) => (`
   <div class="event__type-item">
     <input id="event-type-${ type }-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${ type }" ${ type === pointType ? 'checked=""' : '' }>
     <label class="event__type-label  event__type-label--${ type }" for="event-type-${ type }-1">${ type[0].toUpperCase() }${ type.slice(1) }</label>
   </div>`)).join('');
-  const listDestinationsMarkup = DESTINATIONS.map((destinationItem) => (`<option value="${ destinationItem.name} "></option>`)).join('');
+  const listDestinationsMarkup = DESTINATIONS.map((destination) => (`<option value="${ destination.name} "></option>`)).join('');
   const listOffersMarkup = allOffers.map((offer) => {
     const selected = (selectedOffers.find((selectedOffer) => selectedOffer.id === offer.id)) ? 'checked=""' : '';
     return (`
@@ -48,7 +50,7 @@ const createFormEditTemplate = (point, destination, offers) => {
             ${ pointType }
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1"     type="text"
-            name="event-destination" value="${ name }" list="destination-list-1">
+            name="event-destination" value="${ destinationName }" list="destination-list-1">
           <datalist id="destination-list-1">
             ${ listDestinationsMarkup }
           </datalist>
@@ -94,18 +96,14 @@ const createFormEditTemplate = (point, destination, offers) => {
 export default class ViewFormEdit extends AbstractView {
 
   #point = null;
-  #destination = null;
-  #offers = null;
 
-  constructor(point, destination, offers){
+  constructor(point) {
     super();
     this.#point = point;
-    this.#destination = destination;
-    this.#offers = offers;
   }
 
   get template() {
-    return createFormEditTemplate(this.#point, this.#destination, this.#offers);
+    return createFormEditTemplate(this.#point);
   }
 
   setFormSubmitHandler = (callback) => {
@@ -115,7 +113,7 @@ export default class ViewFormEdit extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this.#point);
   };
 
   setFormClickHandler = (callback) => {
