@@ -5,6 +5,7 @@ import SortTypesModel from '../model/sort-types-model.js';
 import { SORT_TYPES } from '../mock/sort.js';
 import SortPresenter from './sort-presenter.js';
 import PointPresenter from './point-presenter.js';
+import { updateItem } from '../utils.js';
 
 export default class EventsPresenter {
   #presenterContainer;
@@ -49,8 +50,13 @@ export default class EventsPresenter {
   };
 
   #renderPoint = (point) => {
-    const pointPresenter = new PointPresenter(this.#eventsList.element);
+    const pointPresenter = new PointPresenter(this.#eventsList.element, this.#handlePointChange);
     pointPresenter.init(point);
     this.#pointPresenters.set(point.id, pointPresenter);
+  };
+
+  #handlePointChange = (updatedPoint) => {
+    this.#points = updateItem(this.#points, updatedPoint);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
   };
 }
