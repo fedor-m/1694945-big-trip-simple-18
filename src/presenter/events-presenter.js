@@ -1,7 +1,5 @@
 import { render } from '../framework/render.js';
 import ViewTripEventsList from '../view/view-trip-events-list-create.js';
-import { generateDestination } from '../mock/destinations.js';
-import { generateOffersByType } from '../mock/offers.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import SortTypesModel from '../model/sort-types-model.js';
 import { SORT_TYPES } from '../mock/sort.js';
@@ -13,20 +11,21 @@ export default class EventsPresenter {
   #model;
   #eventsList = new ViewTripEventsList();
   #pointPresenters = new Map();
+  #points = [];
   constructor(presenterContainer, model) {
     this.#presenterContainer = presenterContainer;
     this.#model = model;
   }
 
   init = () => {
-    const points = this.#model.points;
-    if (points.length === 0) {
+    this.#points = this.#model.points;
+    if (this.#points.length === 0) {
       this.#renderNoEvents();
       return;
     }
     this.#renderEventsList();
     this.#renderSortTypes();
-    this.#renderPoints(points);
+    this.#renderPoints(this.#points);
   };
 
   #renderNoEvents = () => {
@@ -45,15 +44,13 @@ export default class EventsPresenter {
 
   #renderPoints = (points) => {
     for (const point of points) {
-      const destination = generateDestination(point.destination);
-      const offers = generateOffersByType(point.type, point.offers);
-      this.#renderPoint(point, destination, offers);
+      this.#renderPoint(point);
     }
   };
 
-  #renderPoint = (point, destination, offers) => {
+  #renderPoint = (point) => {
     const pointPresenter = new PointPresenter(this.#eventsList.element);
-    pointPresenter.init(point, destination, offers);
+    pointPresenter.init(point);
     this.#pointPresenters.set(point.id, pointPresenter);
   };
 }

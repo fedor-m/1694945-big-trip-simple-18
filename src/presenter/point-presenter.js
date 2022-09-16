@@ -4,27 +4,24 @@ import ViewFormEdit from '../view/view-form-edit.js';
 import { isEscKey } from '../utils.js';
 export default class PointPresenter {
   #eventsList;
+  #changeData;
   #pointComponent = null;
   #pointEditComponent = null;
   #point = null;
-  #destination = null;
-  #offers = null;
-  constructor(eventsList)
+  constructor(eventsList, changeData)
   {
     this.#eventsList = eventsList;
+    this.#changeData = changeData;
   }
 
-  init = (point, destination, offers) => {
+  init = (point) => {
     this.#point = point;
-    this.#destination = destination;
-    this.#offers = offers;
 
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
-
-    this.#pointComponent = new ViewTripPoint(this.#point, this.#destination, this.#offers);
-    this.#pointEditComponent = new ViewFormEdit(this.#point, this.#destination, this.#offers);
+    this.#pointComponent = new ViewTripPoint(this.#point);
+    this.#pointEditComponent = new ViewFormEdit(this.#point);
 
     this.#pointComponent.setEditClickHandler(this.#handleEditClick);
     this.#pointEditComponent.setFormClickHandler(this.#handleFormClick);
@@ -80,7 +77,8 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (point) => {
+    this.#changeData(point);
     this.#replaceFormToPoint();
   };
 
