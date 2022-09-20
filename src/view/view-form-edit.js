@@ -1,19 +1,18 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { generateDestination } from '../mock/destinations.js';
-import { generateOffersByType } from '../mock/offers.js';
+import { OFFERS, generateOffersByType } from '../mock/offers.js';
 import { TYPES } from '../mock/types.js';
 import { DESTINATIONS } from '../mock/destinations.js';
-import { OFFERS } from '../mock/offers.js';
-import dayjs from 'dayjs';
+import { datetimeFormatBasic } from '../utils/point.js';
 const createFormEditTemplate = (point) => {
-  const { type: pointType, dateFrom, dateTo, basePrice } = point;
-  const { name: destinationName, description } = generateDestination(point.destination);
-  const selectedOffers = generateOffersByType(point.type, point.offers).offers;
+  const { type, dateFrom, dateTo, basePrice, offers } = point;
+  const { name, description } = generateDestination(point.destination);
+  const selectedOffers = generateOffersByType(type, offers).offers;
   const allOffers = OFFERS.filter((offer) => offer.id !== 0);
-  const listTypesMarkup = TYPES.map((type) => (`
+  const listTypesMarkup = TYPES.map((typeItem) => (`
   <div class="event__type-item">
-    <input id="event-type-${ type }-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${ type }" ${ type === pointType ? 'checked=""' : '' }>
-    <label class="event__type-label  event__type-label--${ type }" for="event-type-${ type }-1">${ type[0].toUpperCase() }${ type.slice(1) }</label>
+    <input id="event-type-${ typeItem }-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${ typeItem }" ${ typeItem === type ? 'checked=""' : '' }>
+    <label class="event__type-label  event__type-label--${ typeItem }" for="event-type-${ typeItem }-1">${ typeItem[0].toUpperCase() }${ typeItem.slice(1) }</label>
   </div>`)).join('');
   const listDestinationsMarkup = DESTINATIONS.map((destination) => (`<option value="${ destination.name} "></option>`)).join('');
   const listOffersMarkup = allOffers.map((offer) => {
@@ -35,7 +34,7 @@ const createFormEditTemplate = (point) => {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" src="img/icons/${pointType}.png" alt="Event type  icon"  width="17" height="17">
+            <img class="event__type-icon" src="img/icons/${ type }.png" alt="Event type  icon"  width="17" height="17">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1"     type="checkbox">
           <div class="event__type-list">
@@ -47,10 +46,10 @@ const createFormEditTemplate = (point) => {
         </div>
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${ pointType }
+            ${ type }
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1"     type="text"
-            name="event-destination" value="${ destinationName }" list="destination-list-1">
+            name="event-destination" value="${ name }" list="destination-list-1">
           <datalist id="destination-list-1">
             ${ listDestinationsMarkup }
           </datalist>
@@ -58,11 +57,11 @@ const createFormEditTemplate = (point) => {
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
           <input class="event__input  event__input--time" id="event-start-time-1"   type="text"   name="event-start-time"
-            value="${ dayjs(dateFrom).format('DD/MM/YY HH:MM') }">
+            value="${ datetimeFormatBasic(dateFrom) }">
           —
           <label class="visually-hidden" for="event-end-time-1">To</label>
           <input class="event__input  event__input--time" id="event-end-time-1"   type="text"   name="event-end-time"
-            value="${ dayjs(dateTo).format('DD/MM/YY HH:MM') }">
+            value="${ datetimeFormatBasic(dateTo) }">
         </div>
         <div class="event__field-group  event__field-group--price">
           <label class="event__label" for="event-price-1">
