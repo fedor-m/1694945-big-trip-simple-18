@@ -1,4 +1,4 @@
-import { getRandomInteger } from './utils.js';
+import { getRandomInteger } from './utils/common.js';
 import PointsModel from './model/points-model.js';
 import FiltersModel from './model/filters-model.js';
 import EventsPresenter from './presenter/events-presenter.js';
@@ -11,7 +11,6 @@ const pointsModel = new PointsModel(TRIP_POINTS_COUNT);
 const filtersModel = new FiltersModel(TRIP_POINTS_COUNT);
 const filtersPresenter = new FiltersPresenter(tripFiltersSection,filtersModel);
 const eventsPresenter = new EventsPresenter(tripEventsSection, pointsModel);
-
 
 filtersPresenter.init();
 eventsPresenter.init();
