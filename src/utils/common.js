@@ -1,4 +1,3 @@
-const ESCAPE_CODE = 'Escape';
 export const getRandomInteger = (min, max) => {
   if (isNaN(min) || isNaN(max) || min < 0 || min >= max) {
     return false;
@@ -25,18 +24,14 @@ export const shuffleArray = (elements) => {
   }
   return copiedElements;
 };
-export const isEscKey = (key) => ESCAPE_CODE.indexOf(key) > -1;
 export const updateItem = (items, update) => {
   const index = items.findIndex((item) => item.id === update.id);
-
   if (index === -1) {
     return items;
   }
-
   return [
     ...items.slice(0, index),
     update,
     ...items.slice(index + 1),
   ];
 };
-

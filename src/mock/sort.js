@@ -1,4 +1,9 @@
 export const SORT_TYPES = [
   'day','event', 'time', 'price', 'offers'
 ];
-export const SORT_TYPES_ENABLED = ['day', 'price'];
+export const SortTypeEnabled = {
+  DEFAULT: 'default',
+  DAY: 'day',
+  PRICE: 'price',
+};
+export const SORT_TYPE_DEFAULT = 'day';
