@@ -1,7 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import ViewTripPoint from '../view/view-trip-point.js';
 import ViewFormEdit from '../view/view-form-edit.js';
-import { isEscKey } from '../utils.js';
+import { isEscKey } from '../utils/point.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
