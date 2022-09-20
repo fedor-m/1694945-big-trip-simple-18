@@ -1,7 +1,7 @@
 import {
   getRandomInteger,
   getRandomArrayElement
-} from '../utils.js';
+} from '../utils/common.js';
 import { nanoid } from 'nanoid';
 import { TYPES } from './types.js';
 import { DESTINATIONS } from './destinations.js';

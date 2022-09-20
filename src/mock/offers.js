@@ -1,4 +1,4 @@
-import { shuffleArray, getRandomInteger } from '../utils.js';
+import { shuffleArray, getRandomInteger } from '../utils/common.js';
 export const OFFERS = [
   {
     id: 0,
