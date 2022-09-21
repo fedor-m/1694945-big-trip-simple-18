@@ -1,17 +1,23 @@
-import {
-  getRandomInteger,
-  getRandomArrayElement
-} from '../utils/common.js';
+import { getRandomInteger } from '../utils/common.js';
 import { nanoid } from 'nanoid';
-import { TYPES } from './types.js';
-import { DESTINATIONS } from './destinations.js';
-import { generateOffers } from './offers.js';
-export const generatePoint = () => ({
-  basePrice: getRandomInteger(1000, 2000),
-  dateFrom: new Date(Date.now()).toISOString(),
-  dateTo: new Date(Date.now() + 3600 * 1000 * 24 + 3600 * 1000).toISOString(),
-  destination: getRandomArrayElement(DESTINATIONS).id,
-  id: nanoid(),
-  offers: generateOffers(),
-  type: getRandomArrayElement(TYPES),
-});
+import { getRandomDestinationID } from './destinations.js';
+import { getRandomOffersByType } from './offers.js';
+import { getRandomType } from './types.js';
+const MIN_PRICE = 1000;
+const MAX_PRICE = 2000;
+const MILLISECONDS_IN_HOUR = 3600000;
+const HOURS_IN_A_DAY = 24;
+export const generatePoint = () => {
+  const type = getRandomType();
+  return {
+    basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
+    dateFrom: new Date(Date.now()).toISOString(),
+    dateTo: new Date(
+      Date.now() + MILLISECONDS_IN_HOUR * HOURS_IN_A_DAY + MILLISECONDS_IN_HOUR,
+    ).toISOString(),
+    destination: getRandomDestinationID(),
+    id: nanoid(),
+    offers: getRandomOffersByType(type),
+    type,
+  };
+};
