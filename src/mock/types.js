@@ -1,3 +1,4 @@
+import { getRandomArrayElement } from '../utils/common.js';
 export const TYPES = [
   'taxi',
   'bus',
@@ -9,4 +10,4 @@ export const TYPES = [
   'sightseeing',
   'restaurant'
 ];
-
+export const getRandomType = () => getRandomArrayElement(TYPES);
