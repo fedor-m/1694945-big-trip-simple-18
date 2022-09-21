@@ -1,5 +1,4 @@
 import { generatePoint } from '../mock/point.js';
-import { generateLocalPoint } from '../mock/local-point.js';
 export default class PointsModel {
   #length = null;
   constructor(length) {
@@ -11,6 +10,6 @@ export default class PointsModel {
   }
 
   get localPoint() {
-    return generateLocalPoint();
+    return generatePoint();
   }
 }
