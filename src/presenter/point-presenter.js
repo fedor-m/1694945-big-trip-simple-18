@@ -32,7 +32,7 @@ export default class PointPresenter {
     this.#pointEditComponent = new ViewFormEdit(this.#point);
 
     this.#pointComponent.setEditClickHandler(this.#handleEditClick);
-    this.#pointEditComponent.setFormClickHandler(this.#handleFormClick);
+    this.#pointEditComponent.setFormRollupHandler(this.#handleFormClick);
     this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
     this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
 
