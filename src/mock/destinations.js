@@ -1,6 +1,6 @@
-import { getRandomInteger, getRandomArrayElement } from '../utils/common.js';
+import { getRandomInteger, getRandomArrayElement, getRandomHexColor } from '../utils/common.js';
 const MIN_PHOTOS = 0;
-const MAX_PHOTOS = 4;
+const MAX_PHOTOS = 5;
 export const DESTINATIONS = [
   {
     id: 1,
@@ -83,7 +83,7 @@ const generatePhotos = () => {
   const photos = [];
   for (let i = 0; i < count; i++) {
     photos.push({
-      src: `http://picsum.photos/248/152?r=${Math.random()}`,
+      src: `http://dummyimage.com/248x152/${getRandomHexColor()}`,
       description: getRandomArrayElement(PHOTO_DESCRIPTIONS),
     });
   }
