@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 const ESCAPE_CODE = 'Escape';
 const ESC_CODE = 'Esc';
-const RADIX = 10;
 const getWeightForNullDate = (dateA, dateB) => {
   if (dateA === null && dateB === null) {
     return 0;
@@ -17,6 +16,7 @@ const getWeightForNullDate = (dateA, dateB) => {
 
   return null;
 };
+const searchRegExp = /[a-z-]/ig;
 export const isEscKey = (key) => key === ESCAPE_CODE || key === ESC_CODE;
 export const getStringWithoutSpaces = (string) => string.replaceAll(' ', '-').toLowerCase();
 export const getCapitalizedString = (string) => `${string[0].toUpperCase()}${string.slice(1)}`;
@@ -29,4 +29,5 @@ export const sortByDay = (pointA, pointB) => {
 
   return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
 };
-export const sortByPrice = (pointA, pointB) => parseInt(pointA.basePrice, RADIX) - parseInt(pointB.basePrice, RADIX);
+export const sortByPrice = (pointA, pointB) => Number(pointA.basePrice) - Number(pointB.basePrice);
+export const getNumberFromString = (string) => Number(string.replaceAll(searchRegExp, ''));
