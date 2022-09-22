@@ -91,6 +91,7 @@ export default class PointPresenter {
   };
 
   #handleFormRollup = () => {
+    this.#pointEditComponent.reset(this.#point);
     this.#replaceFormToPoint();
   };
 
