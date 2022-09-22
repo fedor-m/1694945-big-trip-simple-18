@@ -136,24 +136,32 @@ export const OFFERS = [
       {
         id: 1,
         title: 'Choose a cabin',
-        price: 100
+        price: 100,
       },
       {
         id: 2,
         title: 'Choose an upper deck',
-        price: 500
-      }
-    ]
+        price: 500,
+      },
+    ],
   },
   {
     type: 'bus',
-    offers: []
-  }
+    offers: [],
+  },
 ];
-export const getAllOffersByType = (type) => OFFERS.filter((offer)=>offer.type === type);
-export const getRandomOffersByType = (type) =>
-{
-  const allOffersByType = getAllOffersByType(type)[0].offers;
+export const getAllOffersByType = (type) =>
+  OFFERS.filter((offer) => offer.type === type)[0].offers;
+export const getOffersByType = (type, offers) => {
+  if (offers.length === 0) {
+    return offers;
+  }
+  return getAllOffersByType(type).filter(
+    (offer) => offers.includes(offer.id),
+  );
+};
+export const getRandomOffersByType = (type) => {
+  const allOffersByType = getAllOffersByType(type);
   return shuffleArray(allOffersByType)
     .slice(0, getRandomInteger(0, allOffersByType.length))
     .map((offer) => offer.id)
