@@ -218,11 +218,28 @@ export default class ViewFormCreate extends AbstractStatefulView {
   constructor(point) {
     super();
     this._state = ViewFormCreate.parsePointToState(point);
+    this.#setInnerHandlers();
   }
 
   get template() {
     return createFormEditTemplate(this._state);
   }
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-group')
+      .addEventListener('change', this.#typeSelectHandler);
+  };
+
+  #typeSelectHandler = (evt) => {
+    this.updateElement({
+      type: evt.target.value,
+    });
+  };
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
