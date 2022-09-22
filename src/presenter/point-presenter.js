@@ -32,7 +32,7 @@ export default class PointPresenter {
     this.#pointEditComponent = new ViewFormEdit(this.#point);
 
     this.#pointComponent.setEditClickHandler(this.#handleEditClick);
-    this.#pointEditComponent.setFormRollupHandler(this.#handleFormClick);
+    this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
     this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
     this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
 
@@ -60,6 +60,7 @@ export default class PointPresenter {
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToPoint();
     }
   };
@@ -80,6 +81,7 @@ export default class PointPresenter {
   #onEscKeyDown = (evt) => {
     if (isEscKey(evt.key)) {
       evt.preventDefault();
+      this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToPoint();
     }
   };
@@ -88,7 +90,7 @@ export default class PointPresenter {
     this.#replacePointToForm();
   };
 
-  #handleFormClick = () => {
+  #handleFormRollup = () => {
     this.#replaceFormToPoint();
   };
 
