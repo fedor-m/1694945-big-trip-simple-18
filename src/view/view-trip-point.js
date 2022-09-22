@@ -1,37 +1,63 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { dateFormatBasic, dateFormatDay, dateFormatTime } from '../utils/point.js';
+import {
+  getDateFormatBasic,
+  getDateFormatDay,
+  getDateFormatTime
+} from '../utils/point.js';
 import { generateDestination } from '../mock/destinations.js';
-import { generateOffersByType } from '../mock/offers.js';
+import { getOffersByType } from '../mock/offers.js';
+const NO_ADDITIONAL_OFFERS = 'No additional offers';
 const createTripPointTemplate = (point) => {
-  const { type, dateFrom, dateTo, basePrice } = point;
-  const destinationName = generateDestination(point.destination).name;
-  const offers = generateOffersByType(point.type, point.offers).offers;
-  const offersListItemsMarkup = offers.map(
-    (offer) =>
-      `<li class="event__offer">
-        <span class="event__offer-title">${offer.title}</span>
-        ${ offer.price !== undefined ? ` +€&nbsp;
-        <span class="event__offer-price">${offer.price}</span>` : ''}
-      </li>`,
-  ).join('');
+  const { type, dateFrom, dateTo, basePrice, destination, offers } = point;
+  const destinationName = generateDestination(destination).name;
+  const selectedOffers = getOffersByType(type, offers);
+  const offersListItemsMarkup =
+    selectedOffers.length === 0
+      ? `<li class="event__offer">
+          <span class="event__offer-title">${ NO_ADDITIONAL_OFFERS }</span>
+        </li>`
+      : selectedOffers
+        .map(
+          (offer) =>
+            `<li class="event__offer">
+                <span class="event__offer-title">${offer.title}</span>
+                +€&nbsp;
+                <span class="event__offer-price">${offer.price}</span>
+              </li>`
+        )
+        .join('');
   return `
   <li class="trip-events__item">
     <div class="event">
       <time class="event__date"
-        datetime="${ dateFormatBasic(dateFrom) }">${ dateFormatDay(dateFrom) }</time>
+        datetime="
+          ${ getDateFormatBasic(dateFrom) }">
+          ${ getDateFormatDay(dateFrom) }</time>
       <div class="event__type">
-        <img class="event__type-icon" src="img/icons/${ type }.png" alt="Event type icon" width="42" height="42">
+        <img
+          class="event__type-icon"
+          src="img/icons/${ type }.png"
+          alt="Event type icon"
+          width="42"
+          height="42"
+        >
       </div>
-      <h3 class="event__title">${ type } ${ destinationName }</h3>
+      <h3 class="event__title">${type} ${ destinationName }</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time"
-            datetime="${ dateFormatBasic(dateFrom) }T${ dateFormatTime(dateFrom) }">
-            ${ dateFormatTime(dateFrom) }</time>
+            datetime="
+            ${ getDateFormatBasic(dateFrom) }
+            T
+            ${ getDateFormatTime(dateFrom) }">
+            ${ getDateFormatTime(dateFrom) }</time>
           —
           <time class="event__end-time"
-            datetime="${ dateFormatBasic(dateTo) }T${ dateFormatTime(dateTo) }">
-            ${ dateFormatTime(dateTo) }
+            datetime="
+            ${ getDateFormatBasic(dateTo) }
+            T
+            ${ getDateFormatTime(dateTo) } ">
+            ${ getDateFormatTime(dateTo) }
           </time>
         </p>
       </div>
