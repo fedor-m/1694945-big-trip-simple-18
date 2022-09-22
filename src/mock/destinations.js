@@ -1,5 +1,5 @@
 import { getRandomInteger, getRandomArrayElement } from '../utils/common.js';
-const MIN_PHOTOS = 1;
+const MIN_PHOTOS = 0;
 const MAX_PHOTOS = 4;
 export const DESTINATIONS = [
   {
@@ -77,6 +77,9 @@ const PHOTO_DESCRIPTIONS = [
 ];
 const generatePhotos = () => {
   const count = getRandomInteger(MIN_PHOTOS, MAX_PHOTOS);
+  if (count === 0) {
+    return [];
+  }
   const photos = [];
   for (let i = 0; i < count; i++) {
     photos.push({
