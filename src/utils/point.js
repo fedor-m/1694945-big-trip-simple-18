@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 const ESCAPE_CODE = 'Escape';
+const ESC_CODE = 'Esc';
 const RADIX = 10;
 const getWeightForNullDate = (dateA, dateB) => {
   if (dateA === null && dateB === null) {
@@ -16,7 +17,7 @@ const getWeightForNullDate = (dateA, dateB) => {
 
   return null;
 };
-export const isEscKey = (key) => ESCAPE_CODE.indexOf(key) > -1;
+export const isEscKey = (key) => key === ESCAPE_CODE || key === ESC_CODE;
 export const getStringWithoutSpaces = (string) => string.replaceAll(' ', '-').toLowerCase();
 export const getCapitalizedString = (string) => `${string[0].toUpperCase()}${string.slice(1)}`;
 export const getDateFormatBasic = (date) => dayjs(date).format('YYYY-MM-DD');
