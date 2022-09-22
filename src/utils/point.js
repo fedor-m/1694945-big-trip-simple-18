@@ -17,10 +17,12 @@ const getWeightForNullDate = (dateA, dateB) => {
   return null;
 };
 export const isEscKey = (key) => ESCAPE_CODE.indexOf(key) > -1;
-export const dateFormatBasic = (date) => dayjs(date).format('YYYY-MM-DD');
-export const dateFormatDay = (date) => dayjs(date).format('MMM D');
-export const dateFormatTime = (date) => dayjs(date).format('HH:MM');
-export const datetimeFormatBasic = (date) => dayjs(date).format('DD/MM/YY HH:MM');
+export const getStringWithoutSpaces = (string) => string.replaceAll(' ', '-').toLowerCase();
+export const getCapitalizedString = (string) => `${string[0].toUpperCase()}${string.slice(1)}`;
+export const getDateFormatBasic = (date) => dayjs(date).format('YYYY-MM-DD');
+export const getDateFormatDay = (date) => dayjs(date).format('MMM D');
+export const getDateFormatTime = (date) => dayjs(date).format('HH:MM');
+export const getDateTimeFormatBasic = (date) => dayjs(date).format('DD/MM/YY HH:MM');
 export const sortByDay = (pointA, pointB) => {
   const weight = getWeightForNullDate(pointA.dueDate, pointB.dueDate);
 
