@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { generateDestination } from '../mock/destinations.js';
 import { getAllOffersByType } from '../mock/offers.js';
 import { TYPES } from '../mock/types.js';
@@ -214,15 +214,14 @@ const createFormEditTemplate = (point) => {
 </li>
 `;
 };
-export default class ViewFormEdit extends AbstractView {
-  #point = null;
+export default class ViewFormCreate extends AbstractStatefulView {
   constructor(point) {
     super();
-    this.#point = point;
+    this._state = ViewFormCreate.parsePointToState(point);
   }
 
   get template() {
-    return createFormEditTemplate(this.#point);
+    return createFormEditTemplate(this._state);
   }
 
   setFormSubmitHandler = (callback) => {
@@ -234,17 +233,17 @@ export default class ViewFormEdit extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(this.#point);
+    this._callback.formSubmit(ViewFormCreate.parseStateToPoint(this._state));
   };
 
-  setFormClickHandler = (callback) => {
+  setFormRollupHandler = (callback) => {
     this._callback.click = callback;
     this.element
       .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#formClickHandler);
+      .addEventListener('click', this.#formRollupHandler);
   };
 
-  #formClickHandler = (evt) => {
+  #formRollupHandler = (evt) => {
     evt.preventDefault();
     this._callback.click();
   };
@@ -259,5 +258,14 @@ export default class ViewFormEdit extends AbstractView {
   #formResetHandler = (evt) => {
     evt.preventDefault();
     this._callback.formReset();
+  };
+
+  static parsePointToState = (point) => ({
+    ...point,
+  });
+
+  static parseStatePoint = (state) => {
+    const point = {...state};
+    return point;
   };
 }
