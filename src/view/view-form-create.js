@@ -7,6 +7,7 @@ import {
   getDateTimeFormatBasic,
   getCapitalizedString,
   getStringWithoutSpaces,
+  getNumberFromString
 } from '../utils/point.js';
 const createFormEditTemplate = (point) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
@@ -32,7 +33,7 @@ const createFormEditTemplate = (point) => {
     </div>`,
   ).join('');
   const listDestinationsMarkup = DESTINATIONS.map(
-    (destinationItem) => `<option value="${destinationItem.name} "></option>`,
+    (destinationItem) => `<option value="${destinationItem.name}"></option>`,
   ).join('');
   const offersListItemsMarkup = allOffers
     .map(
@@ -40,14 +41,14 @@ const createFormEditTemplate = (point) => {
     <div class="event__offer-selector">
       <input
         class="event__offer-checkbox  visually-hidden"
-        id="event-${getStringWithoutSpaces(offer.title)}-1"
+        id="event-offer-${getStringWithoutSpaces(offer.title)}-${offer.id}"
         type="checkbox"
-        name="${getStringWithoutSpaces(offer.title)}"
+        name="event-${getStringWithoutSpaces(offer.title)}"
         ${offers.includes(offer.id) ? 'checked=""' : ''}
       >
       <label
         class="event__offer-label"
-        for="${getStringWithoutSpaces(offer.title)}-1"
+        for="event-offer-${getStringWithoutSpaces(offer.title)}-${offer.id}"
       >
         <span class="event__offer-title">${offer.title}</span>
         +€&nbsp;
@@ -215,10 +216,22 @@ const createFormEditTemplate = (point) => {
 `;
 };
 export default class ViewFormCreate extends AbstractStatefulView {
+  #isSubmitDisabled = false;
   constructor(point) {
     super();
     this._state = ViewFormCreate.parsePointToState(point);
     this.#setInnerHandlers();
+  }
+
+  get isSubmitDisabled(){
+    return this.#isSubmitDisabled;
+  }
+
+  set isSubmitDisabled(status)
+  {
+    if (typeof status === 'boolean') {
+      this.#isSubmitDisabled = status;
+    }
   }
 
   get template() {
@@ -231,8 +244,32 @@ export default class ViewFormCreate extends AbstractStatefulView {
   };
 
   #setInnerHandlers = () => {
-    this.element.querySelector('.event__type-group')
+    this.element
+      .querySelector('.event__type-group')
       .addEventListener('change', this.#typeSelectHandler);
+    this.element
+      .querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationSelectHandler);
+    Array.from(this.element.querySelectorAll('.event__offer-checkbox'))
+      .forEach((eventType) => eventType.addEventListener('change', this.#offersSelectHandler));
+    this.element
+      .querySelector('.event__input--price')
+      .addEventListener('change', this.#priceSelectHandler);
+    this.element
+      .querySelector('.event__input--time[name=event-start-time]')
+      .addEventListener('change', this.#dateFromChangeHandler);
+    this.element
+      .querySelector('.event__input--time[name=event-end-time]')
+      .addEventListener('change', this.#dateToChangeHandler);
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#formRollupHandler);
+    this.element
+      .querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+    this.element
+      .querySelector('form')
+      .addEventListener('reset', this.#formResetHandler);
   };
 
   #typeSelectHandler = (evt) => {
@@ -241,11 +278,65 @@ export default class ViewFormCreate extends AbstractStatefulView {
     });
   };
 
+  #destinationSelectHandler = (evt) => {
+    const destinationValue = evt.target.value.trim();
+    const selectedDestination = DESTINATIONS.find(
+      (destination) => destination.name === destinationValue
+    );
+    if(!selectedDestination)
+    {
+      evt.preventDefault();
+      return;
+    }
+    this.updateElement({
+      destination: selectedDestination.id
+    });
+  };
+
+  #offersSelectHandler = () =>{
+    const offers = [];
+    Array.from(this.element.querySelectorAll('.event__offer-checkbox'))
+      .forEach((checkbox) => checkbox.checked ?
+        offers.push(getNumberFromString(checkbox.id)) : '');
+    this.updateElement({
+      offers
+    });
+  };
+
+  #priceSelectHandler = (evt) => {
+    const price = evt.target.value.trim();
+    if(isNaN(price) && Number(price) <= 0)
+    {
+      evt.preventDefault();
+      return;
+    }
+    this.updateElement({
+      basePrice: Number(price)
+    });
+  };
+
+  #dateFromChangeHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      dateFrom: evt.target.value,
+    });
+  };
+
+  #dateToChangeHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      dateTo: evt.target.value,
+    });
+  };
+
+  reset = (point) => {
+    this.updateElement(
+      ViewFormCreate.parsePointToState(point),
+    );
+  };
+
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
-    this.element
-      .querySelector('form')
-      .addEventListener('submit', this.#formSubmitHandler);
   };
 
   #formSubmitHandler = (evt) => {
@@ -255,9 +346,6 @@ export default class ViewFormCreate extends AbstractStatefulView {
 
   setFormRollupHandler = (callback) => {
     this._callback.click = callback;
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#formRollupHandler);
   };
 
   #formRollupHandler = (evt) => {
@@ -267,9 +355,6 @@ export default class ViewFormCreate extends AbstractStatefulView {
 
   setFormResetHandler = (callback) => {
     this._callback.formReset = callback;
-    this.element
-      .querySelector('form')
-      .addEventListener('reset', this.#formResetHandler);
   };
 
   #formResetHandler = (evt) => {
@@ -281,7 +366,7 @@ export default class ViewFormCreate extends AbstractStatefulView {
     ...point,
   });
 
-  static parseStatePoint = (state) => {
+  static parseStateToPoint = (state) => {
     const point = {...state};
     return point;
   };
