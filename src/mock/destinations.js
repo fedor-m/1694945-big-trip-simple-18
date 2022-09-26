@@ -1,4 +1,6 @@
-import { getRandomInteger, getRandomArrayElement } from '../utils/common.js';
+import { getRandomInteger, getRandomArrayElement, getRandomHexColor } from '../utils/common.js';
+const MIN_PHOTOS = 0;
+const MAX_PHOTOS = 5;
 export const DESTINATIONS = [
   {
     id: 1,
@@ -54,6 +56,11 @@ export const DESTINATIONS = [
     description:
       'Vladivostok, seaport and administrative centre of Primorsky kray (territory), extreme southeastern Russia. It is located around Zolotoy Rog ("Golden Horn Bay") on the western side of a peninsula that separates Amur and Ussuri bays on the Sea of Japan.',
   },
+  {
+    id: 10,
+    name: 'Pyongyang',
+    description: ''
+  }
 ];
 const PHOTO_DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -69,17 +76,20 @@ const PHOTO_DESCRIPTIONS = [
   'In rutrum ac purus sit amet tempus.',
 ];
 const generatePhotos = () => {
-  const count = getRandomInteger(1, 4);
+  const count = getRandomInteger(MIN_PHOTOS, MAX_PHOTOS);
+  if (count === 0) {
+    return [];
+  }
   const photos = [];
   for (let i = 0; i < count; i++) {
     photos.push({
-      src: `http://picsum.photos/248/152?r=${Math.random()}`,
+      src: `http://dummyimage.com/248x152/${getRandomHexColor()}`,
       description: getRandomArrayElement(PHOTO_DESCRIPTIONS),
     });
   }
   return photos;
 };
-
+export const getRandomDestinationID = () => getRandomArrayElement(DESTINATIONS).id;
 export const generateDestination = (id) => ({
   id,
   description: DESTINATIONS.find((destination) => id === destination.id)
