@@ -1,15 +1,16 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { generateDestination } from '../mock/destinations.js';
+import { generateDestination, DESTINATIONS } from '../mock/destinations.js';
 import { getAllOffersByType } from '../mock/offers.js';
 import { TYPES } from '../mock/types.js';
-import { DESTINATIONS } from '../mock/destinations.js';
 import {
   getDateTimeFormatBasic,
   getCapitalizedString,
   getStringWithoutSpaces,
   getNumberFromString
 } from '../utils/point.js';
-const createFormEditTemplate = (point) => {
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+const createFormCreateTemplate = (point) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
   const { name, description, pictures } = generateDestination(destination);
   const allOffers = getAllOffersByType(type);
@@ -216,31 +217,27 @@ const createFormEditTemplate = (point) => {
 `;
 };
 export default class ViewFormCreate extends AbstractStatefulView {
-  #isSubmitDisabled = false;
+  #datepickerFrom = null;
+  #datepickerTo = null;
   constructor(point) {
     super();
     this._state = ViewFormCreate.parsePointToState(point);
+    this.#setFromDatepicker();
+    this.#setToDatepicker();
     this.#setInnerHandlers();
-  }
-
-  get isSubmitDisabled(){
-    return this.#isSubmitDisabled;
-  }
-
-  set isSubmitDisabled(status)
-  {
-    if (typeof status === 'boolean') {
-      this.#isSubmitDisabled = status;
-    }
   }
 
   get template() {
-    return createFormEditTemplate(this._state);
+    return createFormCreateTemplate(this._state);
   }
 
   _restoreHandlers = () => {
+    this.#setFromDatepicker();
+    this.#setToDatepicker();
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFormRollupHandler(this._callback.click);
+    this.setFormResetHandler(this._callback.formReset);
   };
 
   #setInnerHandlers = () => {
@@ -255,12 +252,6 @@ export default class ViewFormCreate extends AbstractStatefulView {
     this.element
       .querySelector('.event__input--price')
       .addEventListener('change', this.#priceSelectHandler);
-    this.element
-      .querySelector('.event__input--time[name=event-start-time]')
-      .addEventListener('change', this.#dateFromChangeHandler);
-    this.element
-      .querySelector('.event__input--time[name=event-end-time]')
-      .addEventListener('change', this.#dateToChangeHandler);
     this.element
       .querySelector('.event__rollup-btn')
       .addEventListener('click', this.#formRollupHandler);
@@ -315,18 +306,56 @@ export default class ViewFormCreate extends AbstractStatefulView {
     });
   };
 
-  #dateFromChangeHandler = (evt) => {
-    evt.preventDefault();
-    this._setState({
-      dateFrom: evt.target.value,
+  #setFromDatepicker = () => {
+    if (this._state.dateFrom) {
+      this.#datepickerFrom = flatpickr(
+        this.element.querySelector('.event__input--time[name=event-start-time]'),
+        {
+          dateFormat: 'd/m/y H:i',
+          enableTime: true,
+          onChange: this.#dateFromSelectHandler,
+        },
+      );
+    }
+  };
+
+  #setToDatepicker = () => {
+    if (this._state.dateTo) {
+      this.#datepickerTo = flatpickr(
+        this.element.querySelector('.event__input--time[name=event-end-time]'),
+        {
+          dateFormat: 'd/m/y H:i',
+          enableTime: true,
+          minDate: this._state.dateFrom,
+          onChange: this.#dateToSelectHandler,
+        },
+      );
+    }
+  };
+
+  #dateFromSelectHandler = ([dateFrom]) => {
+    this.updateElement({
+      dateFrom,
     });
   };
 
-  #dateToChangeHandler = (evt) => {
-    evt.preventDefault();
-    this._setState({
-      dateTo: evt.target.value,
+  #dateToSelectHandler = ([dateTo]) => {
+    this.updateElement({
+      dateTo,
     });
+  };
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
   };
 
   reset = (point) => {
