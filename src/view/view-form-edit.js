@@ -242,6 +242,8 @@ export default class ViewFormEdit extends AbstractStatefulView {
   _restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFormRollupHandler(this._callback.click);
+    this.setFormResetHandler(this._callback.formReset);
   };
 
   #setInnerHandlers = () => {
