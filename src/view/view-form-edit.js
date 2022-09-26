@@ -1,14 +1,15 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { generateDestination } from '../mock/destinations.js';
+import { generateDestination, DESTINATIONS } from '../mock/destinations.js';
 import { getAllOffersByType } from '../mock/offers.js';
 import { TYPES } from '../mock/types.js';
-import { DESTINATIONS } from '../mock/destinations.js';
 import {
   getDateTimeFormatBasic,
   getCapitalizedString,
   getStringWithoutSpaces,
   getNumberFromString
 } from '../utils/point.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 const createFormEditTemplate = (point) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
   const { name, description, pictures } = generateDestination(destination);
