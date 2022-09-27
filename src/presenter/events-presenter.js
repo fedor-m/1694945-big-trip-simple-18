@@ -5,6 +5,7 @@ import ViewSort from '../view/view-sort.js';
 import { SortType, SORT_TYPE_DEFAULT } from '../mock/sort.js';
 import { sortByDay, sortByPrice } from '../utils/point.js';
 import PointPresenter from './point-presenter.js';
+import { UserAction, UpdateType } from '../mock/actions.js';
 export default class EventsPresenter {
   #presenterContainer;
   #model;
@@ -74,22 +75,33 @@ export default class EventsPresenter {
   };
 
   #handleViewAction = (actionType, updateType, update) => {
-    // Здесь будем вызывать обновление модели
-    console.log(actionType, updateType, update);
-    //this.points = updateItem(this.points, updatedPoint);
-    //this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE_TASK:
+        this.#model.updateTask(updateType, update);
+        break;
+      case UserAction.ADD_TASK:
+        this.#model.addTask(updateType, update);
+        break;
+      case UserAction.DELETE_TASK:
+        this.#model.deleteTask(updateType, update);
+        break;
+    }
   };
 
   #handleModelEvent = (updateType, data) => {
     console.log(updateType, data);
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+        this.#pointPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        // - обновить список (например, когда добавлена задача)
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        break;
+    }
   };
 
   #handleSortTypeChange = (sortType) => {
