@@ -297,7 +297,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   #priceSelectHandler = (evt) => {
     const price = evt.target.value.trim();
-    if(isNaN(price) && Number(price) <= 0)
+    if(isNaN(price) || Number(price) <= 0)
     {
       evt.preventDefault();
       return;
@@ -315,6 +315,8 @@ export default class ViewFormEdit extends AbstractStatefulView {
           dateFormat: DATE_FORMAT_INPUT,
           enableTime: true,
           onChange: this.#dateFromSelectHandler,
+          'time_24hr': true,
+          allowInput: true,
         },
       );
     }
@@ -329,6 +331,8 @@ export default class ViewFormEdit extends AbstractStatefulView {
           enableTime: true,
           minDate: this._state.dateFrom,
           onChange: this.#dateToSelectHandler,
+          'time_24hr': true,
+          allowInput: true,
         },
       );
     }
