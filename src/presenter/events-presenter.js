@@ -39,12 +39,12 @@ export default class EventsPresenter {
   };
 
   #renderEventsList = () => {
-    this.#renderSortTypes();
     render(this.#eventsView, this.#presenterContainer);
     if (this.points.length === 0) {
       this.#renderNoEvents();
       return;
     }
+    this.#renderSortTypes();
     this.#renderPoints(this.points);
   };
 
