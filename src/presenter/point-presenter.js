@@ -2,7 +2,7 @@ import { render, replace, remove } from '../framework/render.js';
 import ViewTripPoint from '../view/view-trip-point.js';
 import ViewFormEdit from '../view/view-form-edit.js';
 import { isEscKey } from '../utils/point.js';
-
+import { UserAction, UpdateType } from '../mock/actions.js';
 const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
@@ -96,12 +96,16 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (point) => {
-    this.#changeData(point);
+    this.#changeData(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      point,
+    );
     this.#replaceFormToPoint();
   };
 
-  #handleFormReset = () => {
-    this.#replaceFormToPoint();
+  #handleFormReset = (point) => {
+    this.#changeData(UserAction.DELETE_POINT, UpdateType.MINOR, point);
   };
 }
 
