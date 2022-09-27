@@ -1,7 +1,7 @@
 export const SORT_TYPES = [
   'day','event', 'time', 'price', 'offers'
 ];
-export const SortTypeEnabled = {
+export const SortType = {
   DEFAULT: 'default',
   DAY: 'day',
   PRICE: 'price',
