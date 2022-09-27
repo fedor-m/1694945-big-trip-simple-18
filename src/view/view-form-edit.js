@@ -389,7 +389,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   #formResetHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formReset();
+    this._callback.formReset(ViewFormEdit.parseStateToPoint(this._state));
   };
 
   static parsePointToState = (point) => ({
