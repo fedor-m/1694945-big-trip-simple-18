@@ -2,10 +2,10 @@ import { render } from '../framework/render.js';
 import ViewTripEventsList from '../view/view-trip-events-list-create.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
-import { SortTypeEnabled, SORT_TYPE_DEFAULT } from '../mock/sort.js';
+import { SortType, SORT_TYPE_DEFAULT } from '../mock/sort.js';
+import { sortByDay, sortByPrice } from '../utils/point.js';
 import PointPresenter from './point-presenter.js';
 import { updateItem } from '../utils/common.js';
-import { sortByDay, sortByPrice } from '../utils/point.js';
 
 export default class EventsPresenter {
   #presenterContainer;
@@ -14,19 +14,24 @@ export default class EventsPresenter {
   #eventsView = new ViewTripEventsList();
   #sortView = new ViewSort();
   #pointPresenters = new Map();
-  #points = [];
-  #defaultPoints = [];
   #currentSortType = SORT_TYPE_DEFAULT;
   constructor(presenterContainer, model) {
     this.#presenterContainer = presenterContainer;
     this.#model = model;
   }
 
+  get points() {
+    switch (this.#currentSortType) {
+      case SortType.DAY:
+        return [...this.#model.points].sort(sortByDay);
+      case SortType.PRICE:
+        return [...this.#model.points].sort(sortByPrice);
+    }
+    return this.#model.points;
+  }
+
   init = () => {
-    this.#points = this.#model.points;
-    this.#sortPoints(SORT_TYPE_DEFAULT);
-    this.#defaultPoints = this.#points.slice();
-    if (this.#points.length === 0) {
+    if (this.points.length === 0) {
       this.#renderNoEvents();
       return;
     }
@@ -40,7 +45,7 @@ export default class EventsPresenter {
 
   #renderEventsList = () => {
     render(this.#eventsView, this.#presenterContainer);
-    this.#renderPoints(this.#points);
+    this.#renderPoints(this.points);
   };
 
   #clearEventsList = () => {
@@ -48,25 +53,11 @@ export default class EventsPresenter {
     this.#pointPresenters.clear();
   };
 
-  #sortPoints = (sortType) => {
-    switch (sortType) {
-      case SortTypeEnabled.DAY:
-        this.#points.sort(sortByDay);
-        break;
-      case SortTypeEnabled.PRICE:
-        this.#points.sort(sortByPrice);
-        break;
-      default:
-        this.#points = this.#defaultPoints.slice();
-    }
-    this.#currentSortType = sortType;
-  };
-
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
-    this.#sortPoints(sortType);
+    this.#currentSortType = sortType;
     this.#clearEventsList();
     this.#renderEventsList();
   };
@@ -89,13 +80,11 @@ export default class EventsPresenter {
   };
 
   #handlePointChange = (updatedPoint) => {
-    this.#points = updateItem(this.#points, updatedPoint);
+    this.points = updateItem(this.points, updatedPoint);
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
   };
 
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
-
-
 }
