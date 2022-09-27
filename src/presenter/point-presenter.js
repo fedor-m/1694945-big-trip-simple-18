@@ -95,12 +95,9 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #handleFormSubmit = (point) => {
-    this.#changeData(
-      UserAction.UPDATE_TASK,
-      UpdateType.MINOR,
-      point,
-    );
+  #handleFormSubmit = (updatedPoint) => {
+    const isMinorUpdate = this.#point.type !== updatedPoint.type || this.#point.offers !== updatedPoint.offers || this.#point.destination !== updatedPoint.destination;
+    this.#changeData(UserAction.UPDATE_POINT, isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH, updatedPoint);
     this.#replaceFormToPoint();
   };
 
