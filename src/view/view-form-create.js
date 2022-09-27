@@ -10,6 +10,7 @@ import {
 } from '../utils/point.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+const DATE_FORMAT_INPUT = 'd/m/y H:i';
 const createFormCreateTemplate = (point) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
   const { name, description, pictures } = generateDestination(destination);
@@ -311,7 +312,7 @@ export default class ViewFormCreate extends AbstractStatefulView {
       this.#datepickerFrom = flatpickr(
         this.element.querySelector('.event__input--time[name=event-start-time]'),
         {
-          dateFormat: 'd/m/y H:i',
+          dateFormat: DATE_FORMAT_INPUT,
           enableTime: true,
           onChange: this.#dateFromSelectHandler,
         },
@@ -324,7 +325,7 @@ export default class ViewFormCreate extends AbstractStatefulView {
       this.#datepickerTo = flatpickr(
         this.element.querySelector('.event__input--time[name=event-end-time]'),
         {
-          dateFormat: 'd/m/y H:i',
+          dateFormat: DATE_FORMAT_INPUT,
           enableTime: true,
           minDate: this._state.dateFrom,
           onChange: this.#dateToSelectHandler,
