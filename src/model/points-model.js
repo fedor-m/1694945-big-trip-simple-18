@@ -5,12 +5,54 @@ const MIN_POINTS = 0;
 const MAX_POINTS = 10;
 const tripPointsCount = getRandomInteger(MIN_POINTS, MAX_POINTS);
 export default class PointsModel extends Observable {
+  #points = Array.from({ length: tripPointsCount }, generatePoint);
+  #localPoint = generatePoint();
 
   get points() {
-    return Array.from({ length: tripPointsCount }, generatePoint);
+    return this.#points;
   }
 
   get localPoint() {
-    return generatePoint();
+    return this.#localPoint;
   }
+
+  updatePoint = (updateType, update) => {
+    const index = this.#points.findIndex((point) => point.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting point');
+    }
+
+    this.#points = [
+      ...this.#points.slice(0, index),
+      update,
+      ...this.#points.slice(index + 1),
+    ];
+
+    this._notify(updateType, update);
+  };
+
+  addPoint = (updateType, update) => {
+    this.#points = [
+      update,
+      ...this.#points,
+    ];
+
+    this._notify(updateType, update);
+  };
+
+  deletePoint = (updateType, update) => {
+    const index = this.#points.findIndex((point) => point.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting task');
+    }
+
+    this.#points = [
+      ...this.#points.slice(0, index),
+      ...this.#points.slice(index + 1),
+    ];
+
+    this._notify(updateType);
+  };
 }
