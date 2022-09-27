@@ -71,22 +71,20 @@ export default class EventsPresenter {
   };
 
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
     switch (actionType) {
-      case UserAction.UPDATE_TASK:
-        this.#model.updateTask(updateType, update);
+      case UserAction.UPDATE_POINT:
+        this.#model.updatePoint(updateType, update);
         break;
-      case UserAction.ADD_TASK:
-        this.#model.addTask(updateType, update);
+      case UserAction.ADD_POINT:
+        this.#model.addPoint(updateType, update);
         break;
-      case UserAction.DELETE_TASK:
-        this.#model.deleteTask(updateType, update);
+      case UserAction.DELETE_POINT:
+        this.#model.deletePoint(updateType, update);
         break;
     }
   };
 
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
     switch (updateType) {
       case UpdateType.PATCH:
         this.#pointPresenters.get(data.id).init(data);
