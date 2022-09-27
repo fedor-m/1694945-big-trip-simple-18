@@ -1,9 +1,9 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { SORT_TYPES, SortTypeEnabled, SORT_TYPE_DEFAULT } from '../mock/sort.js';
+import { SORT_TYPES, SortType, SORT_TYPE_DEFAULT } from '../mock/sort.js';
 const HANDLE_TAG = 'INPUT';
 const STRING_TO_REPLACE = 'sort-';
 const sortTypesMarkup = SORT_TYPES.map((type) => {
-  const enabled = type === Object.values(SortTypeEnabled).find((enabledType)=>enabledType === type);
+  const enabled = type === Object.values(SortType).find((enabledType)=>enabledType === type);
   return `
     <div class="trip-sort__item  trip-sort__item--${ type }">
       <input id="sort-${ type }" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="sort-${ type }" ${ enabled ? '' : 'disabled=""'} ${SORT_TYPE_DEFAULT === type ? 'checked' : ''}>
