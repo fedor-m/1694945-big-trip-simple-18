@@ -1,4 +1,4 @@
-import { render } from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 import ViewTripEventsList from '../view/view-trip-events-list-create.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
@@ -11,7 +11,7 @@ export default class EventsPresenter {
   #model;
   #noEventsView = new ViewNoEvents();
   #eventsView = new ViewTripEventsList();
-  #sortView = new ViewSort();
+  #sortView = null;
   #pointPresenters = new Map();
   #currentSortType = SORT_TYPE_DEFAULT;
   constructor(presenterContainer, model) {
@@ -31,11 +31,6 @@ export default class EventsPresenter {
   }
 
   init = () => {
-    if (this.points.length === 0) {
-      this.#renderNoEvents();
-      return;
-    }
-    this.#renderSortTypes();
     this.#renderEventsList();
   };
 
@@ -44,18 +39,19 @@ export default class EventsPresenter {
   };
 
   #renderEventsList = () => {
+    this.#renderSortTypes();
     render(this.#eventsView, this.#presenterContainer);
+    if (this.points.length === 0) {
+      this.#renderNoEvents();
+      return;
+    }
     this.#renderPoints(this.points);
   };
 
-  #clearEventsList = () => {
-    this.#pointPresenters.forEach((presenter) => presenter.destroy());
-    this.#pointPresenters.clear();
-  };
-
   #renderSortTypes = () => {
-    render(this.#sortView, this.#presenterContainer);
+    this.#sortView = new ViewSort(this.#currentSortType);
     this.#sortView.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    render(this.#sortView, this.#presenterContainer);
   };
 
   #renderPoints = (points) => {
@@ -75,6 +71,7 @@ export default class EventsPresenter {
   };
 
   #handleViewAction = (actionType, updateType, update) => {
+    console.log(actionType, updateType, update);
     switch (actionType) {
       case UserAction.UPDATE_TASK:
         this.#model.updateTask(updateType, update);
@@ -92,14 +89,15 @@ export default class EventsPresenter {
     console.log(updateType, data);
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        // - обновить список (например, когда добавлена задача)
+        this.#clearEventsList();
+        this.#renderEventsList();
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (например, при переключении фильтра)
+        this.#clearEventsList({resetRenderedPointCount: true, resetSortType: true});
+        this.#renderEventsList();
         break;
     }
   };
@@ -109,7 +107,17 @@ export default class EventsPresenter {
       return;
     }
     this.#currentSortType = sortType;
-    this.#clearEventsList();
+    this.#clearEventsList({resetRenderedPointCount: true});
     this.#renderEventsList();
+  };
+
+  #clearEventsList = ({resetSortType = false} = {}) => {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
+    remove(this.#sortView);
+    remove(this.#noEventsView);
+    if (resetSortType) {
+      this.#currentSortType = SortType.DEFAULT;
+    }
   };
 }
