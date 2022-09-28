@@ -12,7 +12,7 @@ import { ViewFormType, ViewFormTypeButton } from '../const/form.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 const DATE_FORMAT_INPUT = 'd/m/y H:i';
-const createFormEditTemplate = (point, formType) => {
+const createFormTemplate = (point, formType) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
   const { name, description, pictures } = generateDestination(destination);
   const dateStart = getDateTimeFormatBasic(dateFrom);
@@ -216,21 +216,21 @@ const createFormEditTemplate = (point, formType) => {
 </li>
 `;
 };
-export default class ViewFormEdit extends AbstractStatefulView {
+export default class ViewForm extends AbstractStatefulView {
   #datetimePickerFrom = null;
   #datetimePickerTo = null;
   #formType = null;
   constructor(point, formType) {
     super();
     this.#formType = formType;
-    this._state = ViewFormEdit.parsePointToState(point);
+    this._state = ViewForm.parsePointToState(point);
     this.#setDatetimeFromDatepicker();
     this.#setDatetimeToDatepicker();
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFormEditTemplate(this._state, this.#formType);
+    return createFormTemplate(this._state, this.#formType);
   }
 
   _restoreHandlers = () => {
@@ -364,7 +364,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   reset = (point) => {
     this.updateElement(
-      ViewFormEdit.parsePointToState(point),
+      ViewForm.parsePointToState(point),
     );
   };
 
@@ -374,7 +374,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(ViewFormEdit.parseStateToPoint(this._state));
+    this._callback.formSubmit(ViewForm.parseStateToPoint(this._state));
   };
 
   setFormRollupHandler = (callback) => {
@@ -392,7 +392,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   #formResetHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formReset(ViewFormEdit.parseStateToPoint(this._state));
+    this._callback.formReset(ViewForm.parseStateToPoint(this._state));
   };
 
   static parsePointToState = (point) => ({
