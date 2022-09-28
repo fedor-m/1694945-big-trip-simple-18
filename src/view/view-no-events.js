@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { NoEventsTextType } from '../mock/filters.js';
+import { NoEventsTextType } from '../const/filters.js';
 
 const createNoEventsMsgTemplate = (filterType) => {
   const NoEventsTextValue = NoEventsTextType[filterType];

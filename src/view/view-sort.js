@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { SORT_TYPES, SortType } from '../mock/sort.js';
+import { SORT_TYPES, SortType } from '../const/sort.js';
 const HANDLE_TAG = 'INPUT';
 const STRING_TO_REPLACE = 'sort-';
 const createSortTemplate = (currentSortType) => {

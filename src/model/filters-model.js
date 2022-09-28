@@ -1,5 +1,5 @@
 import Observable from '../framework/observable.js';
-import { FILTER_TYPE_DEFAULT } from '../mock/filters.js';
+import { FILTER_TYPE_DEFAULT } from '../const/filters.js';
 
 export default class FilterModel extends Observable {
   #currentFilter = FILTER_TYPE_DEFAULT;

@@ -1,4 +1,4 @@
-import { FilterType } from '../mock/filters.js';
+import { FilterType } from '../const/filters.js';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 dayjs.extend(isSameOrAfter);

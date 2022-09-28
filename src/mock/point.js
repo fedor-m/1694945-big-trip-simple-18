@@ -5,7 +5,7 @@ import {
 import { nanoid } from 'nanoid';
 import { getRandomDestinationID } from './destinations.js';
 import { getRandomOffersByType } from './offers.js';
-import { getRandomType } from './types.js';
+import { getRandomType } from '../const/types.js';
 const MIN_PRICE = 1000;
 const MAX_PRICE = 2000;
 export const generatePoint = () => {

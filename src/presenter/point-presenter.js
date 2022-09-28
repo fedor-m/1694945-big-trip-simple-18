@@ -2,7 +2,7 @@ import { render, replace, remove } from '../framework/render.js';
 import ViewTripPoint from '../view/view-trip-point.js';
 import ViewFormEdit from '../view/view-form-edit.js';
 import { isEscKey } from '../utils/point.js';
-import { UserAction, UpdateType } from '../mock/actions.js';
+import { UserAction, UpdateType } from '../const/actions.js';
 const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',

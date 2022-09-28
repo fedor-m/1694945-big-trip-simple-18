@@ -1,5 +1,5 @@
 import { remove, render, replace } from '../framework/render.js';
-import { UpdateType } from '../mock/actions.js';
+import { UpdateType } from '../const/actions.js';
 import ViewFilters from '../view/view-filters.js';
 
 export default class FilterPresenter {

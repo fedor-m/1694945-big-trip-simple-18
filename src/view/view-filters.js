@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { FilterType } from '../mock/filters.js';
+import { FilterType } from '../const/filters.js';
 const createFiltersTemplate = (filter) => {
   const filterTypesMarkup = Object.values(FilterType).map((type) => {
     const enabled = type === filter;

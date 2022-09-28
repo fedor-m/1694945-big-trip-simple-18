@@ -2,10 +2,10 @@ import { render, remove, RenderPosition } from '../framework/render.js';
 import ViewTripEventsList from '../view/view-trip-events-list.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
-import { SortType, SORT_TYPE_DEFAULT } from '../mock/sort.js';
+import { SortType, SORT_TYPE_DEFAULT } from '../const/sort.js';
 import { filter, sortByDay, sortByPrice } from '../utils/point.js';
 import PointPresenter from './point-presenter.js';
-import { UserAction, UpdateType } from '../mock/actions.js';
+import { UserAction, UpdateType } from '../const/actions.js';
 export default class EventsPresenter {
   #presenterContainer;
   #pointsModel = null;

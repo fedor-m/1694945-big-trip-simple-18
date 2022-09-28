@@ -1,7 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { generateDestination, DESTINATIONS } from '../mock/destinations.js';
 import { getAllOffersByType } from '../mock/offers.js';
-import { TYPES } from '../mock/types.js';
+import { TYPES } from '../const/types.js';
 import {
   getDateTimeFormatBasic,
   getCapitalizedString,
