@@ -10,10 +10,12 @@ import {
 } from '../utils/point.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-const DATE_FORMAT_INPUT = 'd/m/y H:i';
-const createFormCreateTemplate = (point) => {
+const DATE_FORMAT_INPUT = 'd/m/Y H:i';
+const createFormEditTemplate = (point) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
   const { name, description, pictures } = generateDestination(destination);
+  const dateStart = getDateTimeFormatBasic(dateFrom);
+  const dateEnd = getDateTimeFormatBasic(dateTo);
   const allOffers = getAllOffersByType(type);
   const listTypesMarkup = TYPES.map(
     (typeItem) => `
@@ -165,7 +167,7 @@ const createFormCreateTemplate = (point) => {
             id="event-start-time-1"
             type="text"
             name="event-start-time"
-            value="${getDateTimeFormatBasic(dateFrom)}"
+            value="${dateStart}"
           >
           —
           <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -174,7 +176,7 @@ const createFormCreateTemplate = (point) => {
             id="event-end-time-1"
             type="text"
             name="event-end-time"
-            value="${getDateTimeFormatBasic(dateTo)}"
+            value="${dateEnd}"
           >
         </div>
         <div
@@ -217,24 +219,24 @@ const createFormCreateTemplate = (point) => {
 </li>
 `;
 };
-export default class ViewFormCreate extends AbstractStatefulView {
-  #datepickerFrom = null;
-  #datepickerTo = null;
+export default class ViewFormEdit extends AbstractStatefulView {
+  #datetimePickerFrom = null;
+  #datetimePickerTo = null;
   constructor(point) {
     super();
-    this._state = ViewFormCreate.parsePointToState(point);
-    this.#setFromDatepicker();
-    this.#setToDatepicker();
+    this._state = ViewFormEdit.parsePointToState(point);
+    this.#setDatetimeFromDatepicker();
+    this.#setDatetimeToDatepicker();
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFormCreateTemplate(this._state);
+    return createFormEditTemplate(this._state);
   }
 
   _restoreHandlers = () => {
-    this.#setFromDatepicker();
-    this.#setToDatepicker();
+    this.#setDatetimeFromDatepicker();
+    this.#setDatetimeToDatepicker();
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setFormRollupHandler(this._callback.click);
@@ -308,33 +310,31 @@ export default class ViewFormCreate extends AbstractStatefulView {
     });
   };
 
-  #setFromDatepicker = () => {
-    if (this._state.dateFrom) {
-      this.#datepickerFrom = flatpickr(
-        this.element.querySelector('.event__input--time[name=event-start-time]'),
-        {
-          dateFormat: DATE_FORMAT_INPUT,
-          enableTime: true,
-          onChange: this.#dateFromSelectHandler,
-          'time_24hr': true,
-          allowInput: true,
-        },
-      );
-    }
+  #setDatetimeFromDatepicker = () => {
+    this.#datetimePickerFrom = flatpickr(
+      this.element.querySelector('.event__input--time[name=event-start-time]'),
+      {
+        dateFormat: DATE_FORMAT_INPUT,
+        enableTime: true,
+        onChange: this.#dateFromSelectHandler,
+        'time_24hr': true,
+        minuteIncrement: 1,
+      },
+    );
   };
 
-  #setToDatepicker = () => {
-    if (this._state.dateTo) {
-      this.#datepickerTo = flatpickr(
-        this.element.querySelector('.event__input--time[name=event-end-time]'),
-        {
-          dateFormat: DATE_FORMAT_INPUT,
-          enableTime: true,
-          minDate: this._state.dateFrom,
-          onChange: this.#dateToSelectHandler,
-        },
-      );
-    }
+  #setDatetimeToDatepicker = () => {
+    this.#datetimePickerTo = flatpickr(
+      this.element.querySelector('.event__input--time[name=event-end-time]'),
+      {
+        dateFormat: DATE_FORMAT_INPUT,
+        enableTime: true,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToSelectHandler,
+        'time_24hr': true,
+        minuteIncrement: 1,
+      },
+    );
   };
 
   #dateFromSelectHandler = ([dateFrom]) => {
@@ -351,20 +351,19 @@ export default class ViewFormCreate extends AbstractStatefulView {
 
   removeElement = () => {
     super.removeElement();
-
-    if (this.#datepickerFrom) {
-      this.#datepickerFrom.destroy();
-      this.#datepickerFrom = null;
+    if (this.#datetimePickerFrom) {
+      this.#datetimePickerFrom.destroy();
+      this.#datetimePickerFrom = null;
     }
-    if (this.#datepickerTo) {
-      this.#datepickerTo.destroy();
-      this.#datepickerTo = null;
+    if (this.#datetimePickerTo) {
+      this.#datetimePickerTo.destroy();
+      this.#datetimePickerTo = null;
     }
   };
 
   reset = (point) => {
     this.updateElement(
-      ViewFormCreate.parsePointToState(point),
+      ViewFormEdit.parsePointToState(point),
     );
   };
 
@@ -374,7 +373,7 @@ export default class ViewFormCreate extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(ViewFormCreate.parseStateToPoint(this._state));
+    this._callback.formSubmit(ViewFormEdit.parseStateToPoint(this._state));
   };
 
   setFormRollupHandler = (callback) => {
@@ -392,7 +391,7 @@ export default class ViewFormCreate extends AbstractStatefulView {
 
   #formResetHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formReset(ViewFormCreate.parseStateToPoint(this._state));
+    this._callback.formReset(ViewFormEdit.parseStateToPoint(this._state));
   };
 
   static parsePointToState = (point) => ({
