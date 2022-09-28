@@ -6,9 +6,9 @@ import FiltersPresenter from './presenter/filters-presenter.js';
 const tripFiltersSection = document.querySelector('.trip-controls__filters');
 const tripEventsSection = document.querySelector('.trip-events');
 const pointsModel = new PointsModel();
-const filtersModel = new FiltersModel(pointsModel.points.length);
-const filtersPresenter = new FiltersPresenter(tripFiltersSection,filtersModel);
-const eventsPresenter = new EventsPresenter(tripEventsSection, pointsModel);
+const filtersModel = new FiltersModel();
+const filtersPresenter = new FiltersPresenter(tripFiltersSection, pointsModel, filtersModel);
+const eventsPresenter = new EventsPresenter(tripEventsSection, pointsModel, filtersModel);
 
 filtersPresenter.init();
 eventsPresenter.init();
