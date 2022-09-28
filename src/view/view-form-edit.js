@@ -281,7 +281,8 @@ export default class ViewFormEdit extends AbstractStatefulView {
       return;
     }
     this.updateElement({
-      destination: selectedDestination.id
+      destination: selectedDestination.id,
+      offers: [],
     });
   };
 
