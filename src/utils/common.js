@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 export const getRandomInteger = (min, max) => {
   if (isNaN(min) || isNaN(max) || min < 0 || min >= max) {
     return false;
@@ -39,3 +40,9 @@ export const getRandomHexColor = () => {
 
   return hr + hg + hb;
 };
+const getYear = () => dayjs().year();
+const getRandomMonth = () => getRandomInteger(1, 12);
+const getRandomDay = () => getRandomInteger(1, 31);
+const getRandomHours = () => getRandomInteger(0, 23);
+const getRandomMinutes = () => getRandomInteger(0, 59);
+export const getRandomDateTime = () => dayjs(`${getYear()}-${getRandomMonth()}-${getRandomDay()} ${getRandomHours()}:${getRandomMinutes()}`);
