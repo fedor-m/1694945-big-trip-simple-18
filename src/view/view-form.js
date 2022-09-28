@@ -8,10 +8,11 @@ import {
   getStringWithoutSpaces,
   getNumberFromString
 } from '../utils/point.js';
+import { ViewFormType, ViewFormTypeButton } from '../const/form.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-const DATE_FORMAT_INPUT = 'd/m/Y H:i';
-const createFormEditTemplate = (point) => {
+const DATE_FORMAT_INPUT = 'd/m/y H:i';
+const createFormEditTemplate = (point, formType) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
   const { name, description, pictures } = generateDestination(destination);
   const dateStart = getDateTimeFormatBasic(dateFrom);
@@ -104,6 +105,7 @@ const createFormEditTemplate = (point) => {
 </div>`
     : ''
 }</section>`;
+  const rollupButtonMarkup = formType === ViewFormType.EDIT_FORM ? '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>' : '';
   return `
   <li class="trip-events__item">
     <form
@@ -203,13 +205,8 @@ const createFormEditTemplate = (point) => {
         <button
           class="event__reset-btn"
           type="reset"
-        >Delete</button>
-        <button
-          class="event__rollup-btn"
-          type="button"
-        >
-          <span class="visually-hidden">Open event</span>
-        </button>
+        >${ViewFormTypeButton[formType]}</button>
+        ${rollupButtonMarkup}
       </header>
       <section class="event__details">
         ${offersSectionMarkup}
@@ -222,8 +219,10 @@ const createFormEditTemplate = (point) => {
 export default class ViewFormEdit extends AbstractStatefulView {
   #datetimePickerFrom = null;
   #datetimePickerTo = null;
-  constructor(point) {
+  #formType = null;
+  constructor(point, formType) {
     super();
+    this.#formType = formType;
     this._state = ViewFormEdit.parsePointToState(point);
     this.#setDatetimeFromDatepicker();
     this.#setDatetimeToDatepicker();
@@ -231,7 +230,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
   }
 
   get template() {
-    return createFormEditTemplate(this._state);
+    return createFormEditTemplate(this._state, this.#formType);
   }
 
   _restoreHandlers = () => {
@@ -255,9 +254,11 @@ export default class ViewFormEdit extends AbstractStatefulView {
     this.element
       .querySelector('.event__input--price')
       .addEventListener('change', this.#priceSelectHandler);
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#formRollupHandler);
+    if(this.#formType === ViewFormType.EDIT_FORM){
+      this.element
+        .querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#formRollupHandler);
+    }
     this.element
       .querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
