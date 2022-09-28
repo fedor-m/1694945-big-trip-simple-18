@@ -8,26 +8,26 @@ import PointPresenter from './point-presenter.js';
 import { UserAction, UpdateType } from '../mock/actions.js';
 export default class EventsPresenter {
   #presenterContainer;
-  #model;
+  #pointsModel;
   #noEventsView = new ViewNoEvents();
   #eventsView = new ViewTripEventsList();
   #sortView = null;
   #pointPresenters = new Map();
   #currentSortType = SORT_TYPE_DEFAULT;
-  constructor(presenterContainer, model) {
+  constructor(presenterContainer, pointsModel) {
     this.#presenterContainer = presenterContainer;
-    this.#model = model;
-    this.#model.addObserver(this.#handleModelEvent);
+    this.#pointsModel = pointsModel;
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return [...this.#model.points].sort(sortByDay);
+        return [...this.#pointsModel.points].sort(sortByDay);
       case SortType.PRICE:
-        return [...this.#model.points].sort(sortByPrice);
+        return [...this.#pointsModel.points].sort(sortByPrice);
     }
-    return this.#model.points;
+    return this.#pointsModel.points;
   }
 
   init = () => {
@@ -73,13 +73,13 @@ export default class EventsPresenter {
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#model.updatePoint(updateType, update);
+        this.#pointsModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_POINT:
-        this.#model.addPoint(updateType, update);
+        this.#pointsModel.addPoint(updateType, update);
         break;
       case UserAction.DELETE_POINT:
-        this.#model.deletePoint(updateType, update);
+        this.#pointsModel.deletePoint(updateType, update);
         break;
     }
   };
