@@ -1,5 +1,5 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
-import ViewTripEventsList from '../view/view-trip-events-list-create.js';
+import ViewTripEventsList from '../view/view-trip-events-list.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
 import { SortType, SORT_TYPE_DEFAULT } from '../mock/sort.js';
@@ -11,7 +11,7 @@ export default class EventsPresenter {
   #pointsModel = null;
   #filtersModel = null ;
   #noEventsView = null;
-  #eventsView = new ViewTripEventsList();
+  #eventsListView = new ViewTripEventsList();
   #sortView = null;
   #pointPresenters = new Map();
   #currentSortType = SORT_TYPE_DEFAULT;
@@ -49,7 +49,7 @@ export default class EventsPresenter {
   };
 
   #renderEventsList = () => {
-    render(this.#eventsView, this.#presenterContainer);
+    render(this.#eventsListView, this.#presenterContainer);
     if (this.points.length === 0) {
       this.#renderNoEvents();
       return;
@@ -71,7 +71,7 @@ export default class EventsPresenter {
   };
 
   #renderPoint = (point) => {
-    const pointPresenter = new PointPresenter(this.#eventsView.element, this.#handleViewAction, this.#handleModeChange);
+    const pointPresenter = new PointPresenter(this.#eventsListView.element, this.#handleViewAction, this.#handleModeChange);
     pointPresenter.init(point);
     this.#pointPresenters.set(point.id, pointPresenter);
   };
