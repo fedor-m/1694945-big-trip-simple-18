@@ -1,8 +1,9 @@
 import { render, replace, remove } from '../framework/render.js';
 import ViewTripPoint from '../view/view-trip-point.js';
-import ViewFormEdit from '../view/view-form-edit.js';
+import ViewForm from '../view/view-form.js';
 import { isEscKey } from '../utils/point.js';
 import { UserAction, UpdateType } from '../const/actions.js';
+import { ViewFormType } from '../const/form.js';
 const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
@@ -29,7 +30,7 @@ export default class PointPresenter {
     const prevPointEditComponent = this.#pointEditComponent;
 
     this.#pointComponent = new ViewTripPoint(this.#point);
-    this.#pointEditComponent = new ViewFormEdit(this.#point);
+    this.#pointEditComponent = new ViewForm(this.#point, ViewFormType.EDIT_FORM);
 
     this.#pointComponent.setEditClickHandler(this.#handleEditClick);
     this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
