@@ -1,33 +1,42 @@
-import { render, remove } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import ViewTripEventsList from '../view/view-trip-events-list-create.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
 import { SortType, SORT_TYPE_DEFAULT } from '../mock/sort.js';
-import { sortByDay, sortByPrice } from '../utils/point.js';
+import { filter, sortByDay, sortByPrice } from '../utils/point.js';
 import PointPresenter from './point-presenter.js';
 import { UserAction, UpdateType } from '../mock/actions.js';
 export default class EventsPresenter {
   #presenterContainer;
-  #pointsModel;
-  #noEventsView = new ViewNoEvents();
+  #pointsModel = null;
+  #filtersModel = null ;
+  #noEventsView = null;
   #eventsView = new ViewTripEventsList();
   #sortView = null;
   #pointPresenters = new Map();
   #currentSortType = SORT_TYPE_DEFAULT;
-  constructor(presenterContainer, pointsModel) {
+  constructor(presenterContainer, pointsModel, filtersModel) {
     this.#presenterContainer = presenterContainer;
     this.#pointsModel = pointsModel;
+    this.#filtersModel = filtersModel;
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filtersModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[this.currentFilter](points);
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return [...this.#pointsModel.points].sort(sortByDay);
+        return filteredPoints.sort(sortByDay);
       case SortType.PRICE:
-        return [...this.#pointsModel.points].sort(sortByPrice);
+        return filteredPoints.sort(sortByPrice);
     }
-    return this.#pointsModel.points;
+    return filteredPoints;
+  }
+
+  get currentFilter () {
+    return this.#filtersModel.currentFilter;
   }
 
   init = () => {
@@ -35,6 +44,7 @@ export default class EventsPresenter {
   };
 
   #renderNoEvents = () => {
+    this.#noEventsView = new ViewNoEvents(this.currentFilter);
     render(this.#noEventsView, this.#presenterContainer);
   };
 
@@ -51,7 +61,7 @@ export default class EventsPresenter {
   #renderSortTypes = () => {
     this.#sortView = new ViewSort(this.#currentSortType);
     this.#sortView.setSortTypeChangeHandler(this.#handleSortTypeChange);
-    render(this.#sortView, this.#presenterContainer);
+    render(this.#sortView, this.#presenterContainer, RenderPosition.AFTERBEGIN);
   };
 
   #renderPoints = (points) => {
@@ -115,7 +125,7 @@ export default class EventsPresenter {
     remove(this.#sortView);
     remove(this.#noEventsView);
     if (resetSortType) {
-      this.#currentSortType = SortType.DEFAULT;
+      this.#currentSortType = SORT_TYPE_DEFAULT;
     }
   };
 }
