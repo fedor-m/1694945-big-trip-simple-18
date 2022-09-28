@@ -1,11 +1,12 @@
 import Observable from '../framework/observable.js';
 import { getRandomInteger } from '../utils/common.js';
 import { generatePoint } from '../mock/point.js';
+import { sortByDay } from '../utils/point.js';
 const MIN_POINTS = 0;
 const MAX_POINTS = 10;
 const tripPointsCount = getRandomInteger(MIN_POINTS, MAX_POINTS);
 export default class PointsModel extends Observable {
-  #points = Array.from({ length: tripPointsCount }, generatePoint);
+  #points = Array.from({ length: tripPointsCount }, generatePoint).sort(sortByDay);
   #localPoint = generatePoint();
 
   get points() {
