@@ -29,6 +29,7 @@ export const getDateFormatBasic = (date) => dayjs(date).format('YYYY-MM-DD');
 export const getDateFormatDay = (date) => dayjs(date).format('MMM D');
 export const getDateFormatTime = (date) => dayjs(date).format('HH:mm');
 export const getDateTimeFormatBasic = (date) => dayjs(date).format('DD/MM/YY HH:mm');
+export const formatDateToISOString = (date) => dayjs(date).toISOString();
 export const sortByDay = (pointA, pointB) => {
   const weight = getWeightForNullDate(pointA.dueDate, pointB.dueDate);
 
