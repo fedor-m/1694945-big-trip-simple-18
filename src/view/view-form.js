@@ -1,20 +1,22 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { generateDestination, DESTINATIONS } from '../mock/destinations.js';
+import { findDestinationByID, DESTINATIONS, findDestinationByName } from '../mock/destinations.js';
 import { getAllOffersByType } from '../mock/offers.js';
 import { TYPES } from '../const/types.js';
 import {
   getDateTimeFormatBasic,
   getCapitalizedString,
   getStringWithoutSpaces,
-  getNumberFromString
+  getNumberFromString,
+  formatDateToISOString
 } from '../utils/point.js';
-import { ViewFormType, ViewFormTypeButton } from '../const/form.js';
+import { MIN_PRICE, ViewFormType, ViewFormTypeButton } from '../const/form.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+
 const DATE_FORMAT_INPUT = 'd/m/y H:i';
 const createFormTemplate = (point, formType) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
-  const { name, description, pictures } = generateDestination(destination);
+  const { name, description, pictures } = findDestinationByID(destination);
   const dateStart = getDateTimeFormatBasic(dateFrom);
   const dateEnd = getDateTimeFormatBasic(dateTo);
   const allOffers = getAllOffersByType(type);
@@ -63,7 +65,7 @@ const createFormTemplate = (point, formType) => {
     )
     .join('');
   const listPicturesMarkup =
-    pictures.length === 0
+    !pictures || pictures.length === 0
       ? []
       : pictures
         .map(
@@ -71,7 +73,7 @@ const createFormTemplate = (point, formType) => {
             `<img
               class="event__photo"
               src="${picture.src}"
-              alt="Event photo">
+              alt="${picture.description}">
             </img>`
         ).join('');
   const offersSectionMarkup =
@@ -86,7 +88,7 @@ const createFormTemplate = (point, formType) => {
           </div>
         </section>`;
   const destinationSectionMarkup =
-    description.length === 0 && pictures.length === 0
+    (!description || description.length === 0) && (!pictures || pictures.length === 0)
       ? ''
       : `
         <section class="event__section event__section--destination">
@@ -106,6 +108,7 @@ const createFormTemplate = (point, formType) => {
     : ''
 }</section>`;
   const rollupButtonMarkup = formType === ViewFormType.EDIT_FORM ? '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>' : '';
+
   return `
   <li class="trip-events__item">
     <form
@@ -193,7 +196,6 @@ const createFormTemplate = (point, formType) => {
           <input
             class="event__input  event__input--price"
             id="event-price-1"
-            type="text"
             name="event-price"
             value="${basePrice}"
           >
@@ -254,17 +256,17 @@ export default class ViewForm extends AbstractStatefulView {
     this.element
       .querySelector('.event__input--price')
       .addEventListener('change', this.#priceSelectHandler);
-    if(this.#formType === ViewFormType.EDIT_FORM){
-      this.element
-        .querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#formRollupHandler);
-    }
     this.element
       .querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
     this.element
       .querySelector('form')
       .addEventListener('reset', this.#formResetHandler);
+    if(this.#formType === ViewFormType.EDIT_FORM) {
+      this.element
+        .querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#formRollupHandler);
+    }
   };
 
   #typeSelectHandler = (evt) => {
@@ -275,16 +277,14 @@ export default class ViewForm extends AbstractStatefulView {
 
   #destinationSelectHandler = (evt) => {
     const destinationValue = evt.target.value.trim();
-    const selectedDestination = DESTINATIONS.find(
-      (destination) => destination.name === destinationValue
-    );
-    if(!selectedDestination)
+    const foundDestination = findDestinationByName(destinationValue);
+    if(!foundDestination)
     {
-      evt.preventDefault();
+      evt.target.value = findDestinationByID(this._state.destination).name;
       return;
     }
     this.updateElement({
-      destination: selectedDestination.id,
+      destination: foundDestination.id,
       offers: [],
     });
   };
@@ -300,14 +300,13 @@ export default class ViewForm extends AbstractStatefulView {
   };
 
   #priceSelectHandler = (evt) => {
-    const price = evt.target.value.trim();
-    if(isNaN(price) || Number(price) <= 0)
-    {
-      evt.preventDefault();
+    const price = Number(evt.target.value.trim());
+    if(isNaN(price) || price < MIN_PRICE) {
+      evt.target.value = Number(this._state.basePrice);
       return;
     }
     this.updateElement({
-      basePrice: Number(price)
+      basePrice: price
     });
   };
 
@@ -317,6 +316,7 @@ export default class ViewForm extends AbstractStatefulView {
       {
         dateFormat: DATE_FORMAT_INPUT,
         enableTime: true,
+        maxDate: this._state.dateTo,
         onChange: this.#dateFromSelectHandler,
         'time_24hr': true,
         minuteIncrement: 1,
@@ -340,13 +340,13 @@ export default class ViewForm extends AbstractStatefulView {
 
   #dateFromSelectHandler = ([dateFrom]) => {
     this.updateElement({
-      dateFrom,
+      dateFrom: formatDateToISOString(dateFrom),
     });
   };
 
   #dateToSelectHandler = ([dateTo]) => {
     this.updateElement({
-      dateTo,
+      dateTo: formatDateToISOString(dateTo),
     });
   };
 
