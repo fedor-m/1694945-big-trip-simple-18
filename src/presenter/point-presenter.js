@@ -1,8 +1,9 @@
 import { render, replace, remove } from '../framework/render.js';
 import ViewTripPoint from '../view/view-trip-point.js';
-import ViewFormEdit from '../view/view-form-edit.js';
+import ViewForm from '../view/view-form.js';
 import { isEscKey } from '../utils/point.js';
-
+import { UserAction, UpdateType } from '../const/actions.js';
+import { ViewFormType } from '../const/form.js';
 const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
@@ -15,8 +16,7 @@ export default class PointPresenter {
   #pointEditComponent = null;
   #point = null;
   #mode = Mode.DEFAULT;
-  constructor(eventsList, changeData, changeMode)
-  {
+  constructor(eventsList, changeData, changeMode) {
     this.#eventsList = eventsList;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
@@ -29,7 +29,7 @@ export default class PointPresenter {
     const prevPointEditComponent = this.#pointEditComponent;
 
     this.#pointComponent = new ViewTripPoint(this.#point);
-    this.#pointEditComponent = new ViewFormEdit(this.#point);
+    this.#pointEditComponent = new ViewForm(this.#point, ViewFormType.EDIT_FORM);
 
     this.#pointComponent.setEditClickHandler(this.#handleEditClick);
     this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
@@ -95,13 +95,19 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #handleFormSubmit = (point) => {
-    this.#changeData(point);
+  #handleFormSubmit = (updatedPoint) => {
+    const isMinorUpdate =
+      this.#point.dateFrom !== updatedPoint.dateFrom ||
+      this.#point.basePrice !== updatedPoint.basePrice;
+    this.#changeData(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      updatedPoint
+    );
     this.#replaceFormToPoint();
   };
 
-  #handleFormReset = () => {
-    this.#replaceFormToPoint();
+  #handleFormReset = (point) => {
+    this.#changeData(UserAction.DELETE_POINT, UpdateType.MINOR, point);
   };
 }
-

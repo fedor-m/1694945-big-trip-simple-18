@@ -4,12 +4,12 @@ import {
   getDateFormatDay,
   getDateFormatTime
 } from '../utils/point.js';
-import { generateDestination } from '../mock/destinations.js';
+import { findDestinationByID } from '../mock/destinations.js';
 import { getOffersByType } from '../mock/offers.js';
 const NO_ADDITIONAL_OFFERS = 'No additional offers';
 const createTripPointTemplate = (point) => {
   const { type, dateFrom, dateTo, basePrice, destination, offers } = point;
-  const destinationName = generateDestination(destination).name;
+  const destinationName = findDestinationByID(destination).name;
   const selectedOffers = getOffersByType(type, offers);
   const offersListItemsMarkup =
     selectedOffers.length === 0

@@ -1,18 +1,24 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { generateDestination, DESTINATIONS } from '../mock/destinations.js';
+import { findDestinationByID, DESTINATIONS, findDestinationByName } from '../mock/destinations.js';
 import { getAllOffersByType } from '../mock/offers.js';
-import { TYPES } from '../mock/types.js';
+import { TYPES } from '../const/types.js';
 import {
   getDateTimeFormatBasic,
   getCapitalizedString,
   getStringWithoutSpaces,
-  getNumberFromString
+  getNumberFromString,
+  formatDateToISOString
 } from '../utils/point.js';
+import { MIN_PRICE, ViewFormType, ViewFormTypeButton } from '../const/form.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-const createFormEditTemplate = (point) => {
+
+const DATE_FORMAT_INPUT = 'd/m/y H:i';
+const createFormTemplate = (point, formType) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = point;
-  const { name, description, pictures } = generateDestination(destination);
+  const { name, description, pictures } = findDestinationByID(destination);
+  const dateStart = getDateTimeFormatBasic(dateFrom);
+  const dateEnd = getDateTimeFormatBasic(dateTo);
   const allOffers = getAllOffersByType(type);
   const listTypesMarkup = TYPES.map(
     (typeItem) => `
@@ -59,7 +65,7 @@ const createFormEditTemplate = (point) => {
     )
     .join('');
   const listPicturesMarkup =
-    pictures.length === 0
+    !pictures || pictures.length === 0
       ? []
       : pictures
         .map(
@@ -67,7 +73,7 @@ const createFormEditTemplate = (point) => {
             `<img
               class="event__photo"
               src="${picture.src}"
-              alt="Event photo">
+              alt="${picture.description}">
             </img>`
         ).join('');
   const offersSectionMarkup =
@@ -82,7 +88,7 @@ const createFormEditTemplate = (point) => {
           </div>
         </section>`;
   const destinationSectionMarkup =
-    description.length === 0 && pictures.length === 0
+    (!description || description.length === 0) && (!pictures || pictures.length === 0)
       ? ''
       : `
         <section class="event__section event__section--destination">
@@ -101,6 +107,8 @@ const createFormEditTemplate = (point) => {
 </div>`
     : ''
 }</section>`;
+  const rollupButtonMarkup = formType === ViewFormType.EDIT_FORM ? '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>' : '';
+
   return `
   <li class="trip-events__item">
     <form
@@ -164,7 +172,7 @@ const createFormEditTemplate = (point) => {
             id="event-start-time-1"
             type="text"
             name="event-start-time"
-            value="${getDateTimeFormatBasic(dateFrom)}"
+            value="${dateStart}"
           >
           —
           <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -173,7 +181,7 @@ const createFormEditTemplate = (point) => {
             id="event-end-time-1"
             type="text"
             name="event-end-time"
-            value="${getDateTimeFormatBasic(dateTo)}"
+            value="${dateEnd}"
           >
         </div>
         <div
@@ -188,7 +196,6 @@ const createFormEditTemplate = (point) => {
           <input
             class="event__input  event__input--price"
             id="event-price-1"
-            type="text"
             name="event-price"
             value="${basePrice}"
           >
@@ -200,13 +207,8 @@ const createFormEditTemplate = (point) => {
         <button
           class="event__reset-btn"
           type="reset"
-        >Delete</button>
-        <button
-          class="event__rollup-btn"
-          type="button"
-        >
-          <span class="visually-hidden">Open event</span>
-        </button>
+        >${ViewFormTypeButton[formType]}</button>
+        ${rollupButtonMarkup}
       </header>
       <section class="event__details">
         ${offersSectionMarkup}
@@ -216,24 +218,26 @@ const createFormEditTemplate = (point) => {
 </li>
 `;
 };
-export default class ViewFormEdit extends AbstractStatefulView {
-  #datepickerFrom = null;
-  #datepickerTo = null;
-  constructor(point) {
+export default class ViewForm extends AbstractStatefulView {
+  #datetimePickerFrom = null;
+  #datetimePickerTo = null;
+  #formType = null;
+  constructor(point, formType) {
     super();
-    this._state = ViewFormEdit.parsePointToState(point);
-    this.#setFromDatepicker();
-    this.#setToDatepicker();
+    this.#formType = formType;
+    this._state = ViewForm.parsePointToState(point);
+    this.#setDatetimeFromDatepicker();
+    this.#setDatetimeToDatepicker();
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFormEditTemplate(this._state);
+    return createFormTemplate(this._state, this.#formType);
   }
 
   _restoreHandlers = () => {
-    this.#setFromDatepicker();
-    this.#setToDatepicker();
+    this.#setDatetimeFromDatepicker();
+    this.#setDatetimeToDatepicker();
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setFormRollupHandler(this._callback.click);
@@ -253,14 +257,16 @@ export default class ViewFormEdit extends AbstractStatefulView {
       .querySelector('.event__input--price')
       .addEventListener('change', this.#priceSelectHandler);
     this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#formRollupHandler);
-    this.element
       .querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
     this.element
       .querySelector('form')
       .addEventListener('reset', this.#formResetHandler);
+    if(this.#formType === ViewFormType.EDIT_FORM) {
+      this.element
+        .querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#formRollupHandler);
+    }
   };
 
   #typeSelectHandler = (evt) => {
@@ -271,16 +277,15 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   #destinationSelectHandler = (evt) => {
     const destinationValue = evt.target.value.trim();
-    const selectedDestination = DESTINATIONS.find(
-      (destination) => destination.name === destinationValue
-    );
-    if(!selectedDestination)
+    const foundDestination = findDestinationByName(destinationValue);
+    if(!foundDestination)
     {
-      evt.preventDefault();
+      evt.target.value = findDestinationByID(this._state.destination).name;
       return;
     }
     this.updateElement({
-      destination: selectedDestination.id
+      destination: foundDestination.id,
+      offers: [],
     });
   };
 
@@ -295,72 +300,71 @@ export default class ViewFormEdit extends AbstractStatefulView {
   };
 
   #priceSelectHandler = (evt) => {
-    const price = evt.target.value.trim();
-    if(isNaN(price) && Number(price) <= 0)
-    {
-      evt.preventDefault();
+    const price = Number(evt.target.value.trim());
+    if(isNaN(price) || price < MIN_PRICE) {
+      evt.target.value = Number(this._state.basePrice);
       return;
     }
     this.updateElement({
-      basePrice: Number(price)
+      basePrice: price
     });
   };
 
-  #setFromDatepicker = () => {
-    if (this._state.dateFrom) {
-      this.#datepickerFrom = flatpickr(
-        this.element.querySelector('.event__input--time[name=event-start-time]'),
-        {
-          dateFormat: 'd/m/y H:i',
-          enableTime: true,
-          onChange: this.#dateFromSelectHandler,
-        },
-      );
-    }
+  #setDatetimeFromDatepicker = () => {
+    this.#datetimePickerFrom = flatpickr(
+      this.element.querySelector('.event__input--time[name=event-start-time]'),
+      {
+        dateFormat: DATE_FORMAT_INPUT,
+        enableTime: true,
+        maxDate: this._state.dateTo,
+        onChange: this.#dateFromSelectHandler,
+        'time_24hr': true,
+        minuteIncrement: 1,
+      },
+    );
   };
 
-  #setToDatepicker = () => {
-    if (this._state.dateTo) {
-      this.#datepickerTo = flatpickr(
-        this.element.querySelector('.event__input--time[name=event-end-time]'),
-        {
-          dateFormat: 'd/m/y H:i',
-          enableTime: true,
-          minDate: this._state.dateFrom,
-          onChange: this.#dateToSelectHandler,
-        },
-      );
-    }
+  #setDatetimeToDatepicker = () => {
+    this.#datetimePickerTo = flatpickr(
+      this.element.querySelector('.event__input--time[name=event-end-time]'),
+      {
+        dateFormat: DATE_FORMAT_INPUT,
+        enableTime: true,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToSelectHandler,
+        'time_24hr': true,
+        minuteIncrement: 1,
+      },
+    );
   };
 
   #dateFromSelectHandler = ([dateFrom]) => {
     this.updateElement({
-      dateFrom,
+      dateFrom: formatDateToISOString(dateFrom),
     });
   };
 
   #dateToSelectHandler = ([dateTo]) => {
     this.updateElement({
-      dateTo,
+      dateTo: formatDateToISOString(dateTo),
     });
   };
 
   removeElement = () => {
     super.removeElement();
-
-    if (this.#datepickerFrom) {
-      this.#datepickerFrom.destroy();
-      this.#datepickerFrom = null;
+    if (this.#datetimePickerFrom) {
+      this.#datetimePickerFrom.destroy();
+      this.#datetimePickerFrom = null;
     }
-    if (this.#datepickerTo) {
-      this.#datepickerTo.destroy();
-      this.#datepickerTo = null;
+    if (this.#datetimePickerTo) {
+      this.#datetimePickerTo.destroy();
+      this.#datetimePickerTo = null;
     }
   };
 
   reset = (point) => {
     this.updateElement(
-      ViewFormEdit.parsePointToState(point),
+      ViewForm.parsePointToState(point),
     );
   };
 
@@ -370,7 +374,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(ViewFormEdit.parseStateToPoint(this._state));
+    this._callback.formSubmit(ViewForm.parseStateToPoint(this._state));
   };
 
   setFormRollupHandler = (callback) => {
@@ -388,7 +392,7 @@ export default class ViewFormEdit extends AbstractStatefulView {
 
   #formResetHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formReset();
+    this._callback.formReset(ViewForm.parseStateToPoint(this._state));
   };
 
   static parsePointToState = (point) => ({

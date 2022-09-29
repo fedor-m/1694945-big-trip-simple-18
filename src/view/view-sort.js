@@ -1,22 +1,30 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { SORT_TYPES, SortTypeEnabled, SORT_TYPE_DEFAULT } from '../mock/sort.js';
+import { SORT_TYPES, SortType } from '../const/sort.js';
 const HANDLE_TAG = 'INPUT';
 const STRING_TO_REPLACE = 'sort-';
-const sortTypesMarkup = SORT_TYPES.map((type) => {
-  const enabled = type === Object.values(SortTypeEnabled).find((enabledType)=>enabledType === type);
-  return `
-    <div class="trip-sort__item  trip-sort__item--${ type }">
-      <input id="sort-${ type }" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="sort-${ type }" ${ enabled ? '' : 'disabled=""'} ${SORT_TYPE_DEFAULT === type ? 'checked' : ''}>
-      <label class="trip-sort__btn" for="sort-${ type }">${ type }</label>
-  </div>`;
-}).join('');
-const createSortTemplate = () =>
-  `<form class="trip-events__trip-sort trip-sort" action="#" method="get">
+const createSortTemplate = (currentSortType) => {
+  const sortTypesMarkup = SORT_TYPES.map((type) => {
+    const enabled = type === Object.values(SortType).find((enabledType)=>enabledType === type);
+    return `
+      <div class="trip-sort__item  trip-sort__item--${ type }">
+        <input id="sort-${ type }" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="sort-${ type }" ${ enabled ? '' : 'disabled=""'} ${currentSortType === type ? 'checked' : ''}>
+        <label class="trip-sort__btn" for="sort-${ type }">${ type }</label>
+    </div>`;
+  }).join('');
+  return `<form class="trip-events__trip-sort trip-sort" action="#" method="get">
     ${ sortTypesMarkup }
   </form>`;
+};
 export default class ViewSort extends AbstractView {
+  #currentSortType = null;
+
+  constructor (currentSortType) {
+    super();
+    this.#currentSortType = currentSortType;
+  }
+
   get template() {
-    return createSortTemplate();
+    return createSortTemplate(this.#currentSortType);
   }
 
   setSortTypeChangeHandler = (callback) => {
