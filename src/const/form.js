@@ -6,3 +6,4 @@ export const ViewFormTypeButton = {
   [ViewFormType.ADD_FORM]: 'Cancel',
   [ViewFormType.EDIT_FORM]: 'Delete',
 };
+export const MIN_PRICE = 1;
