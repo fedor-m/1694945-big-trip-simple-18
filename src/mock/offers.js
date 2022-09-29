@@ -150,8 +150,10 @@ export const OFFERS = [
     offers: [],
   },
 ];
-export const getAllOffersByType = (type) =>
-  OFFERS.filter((offer) => offer.type === type)[0].offers;
+export const getAllOffersByType = (type) =>{
+  const foundOffers = OFFERS.find((offer)=>offer.type === type);
+  return foundOffers.offers;
+};
 export const getOffersByType = (type, offers) => {
   if (offers.length === 0) {
     return offers;
