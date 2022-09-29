@@ -5,20 +5,26 @@ import ViewSort from '../view/view-sort.js';
 import { SortType, SORT_TYPE_DEFAULT } from '../const/sort.js';
 import { filter, sortByDay, sortByPrice } from '../utils/point.js';
 import PointPresenter from './point-presenter.js';
+import NewPointPresenter from './new-point-presenter.js';
 import { UserAction, UpdateType } from '../const/actions.js';
+import { FILTER_TYPE_DEFAULT } from '../const/filters.js';
 export default class EventsPresenter {
   #presenterContainer;
   #pointsModel = null;
-  #filtersModel = null ;
+  #filtersModel = null;
   #noEventsView = null;
   #eventsListView = new ViewTripEventsList();
   #sortView = null;
   #pointPresenters = new Map();
+  #newPointPresenter = null;
+  #newPoint = null;
   #currentSortType = SORT_TYPE_DEFAULT;
   constructor(presenterContainer, pointsModel, filtersModel) {
     this.#presenterContainer = presenterContainer;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
+    this.#newPoint = pointsModel.localPoint;
+    this.#newPointPresenter = new NewPointPresenter(this.#eventsListView.element, this.#handleViewAction);
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filtersModel.addObserver(this.#handleModelEvent);
   }
@@ -49,6 +55,15 @@ export default class EventsPresenter {
   };
 
   #renderEventsList = () => {
+    const addNewEventButton = document.querySelector('.trip-main__event-add-btn');
+    const handleNewEventFormClose = () => {
+      addNewEventButton.disabled = false;
+    };
+    const handleNewEventButtonClick = () => {
+      this.#createNewEvent(handleNewEventFormClose, this.#newPoint);
+      addNewEventButton.disabled = true;
+    };
+    this.#eventsListView.setCreateNewEventHandler(handleNewEventButtonClick);
     render(this.#eventsListView, this.#presenterContainer);
     if (this.points.length === 0) {
       this.#renderNoEvents();
@@ -56,6 +71,12 @@ export default class EventsPresenter {
     }
     this.#renderSortTypes();
     this.#renderPoints(this.points);
+  };
+
+  #createNewEvent = (callback, point) => {
+    this.#currentSortType = SORT_TYPE_DEFAULT;
+    this.#filtersModel.setFilter(UpdateType.MAJOR, FILTER_TYPE_DEFAULT);
+    this.#newPointPresenter.init(callback, point);
   };
 
   #renderSortTypes = () => {
@@ -77,6 +98,7 @@ export default class EventsPresenter {
   };
 
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
