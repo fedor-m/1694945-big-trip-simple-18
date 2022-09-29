@@ -25,21 +25,6 @@ export const shuffleArray = (elements) => {
   }
   return copiedElements;
 };
-const getRandomRgbColor = () => {
-  const r = getRandomInteger(0, 255);
-  const g = getRandomInteger(0, 255);
-  const b = getRandomInteger(0, 255);
-  return [r, g, b];
-};
-export const getRandomHexColor = () => {
-  const [r, g, b] = getRandomRgbColor();
-
-  const hr = r.toString(16).padStart(2, '0');
-  const hg = g.toString(16).padStart(2, '0');
-  const hb = b.toString(16).padStart(2, '0');
-
-  return hr + hg + hb;
-};
 const getYear = () => dayjs().year();
 const getRandomMonth = () => getRandomInteger(1, 12);
 const getRandomDay = () => getRandomInteger(1, 31);
