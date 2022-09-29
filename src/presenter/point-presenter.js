@@ -16,8 +16,7 @@ export default class PointPresenter {
   #pointEditComponent = null;
   #point = null;
   #mode = Mode.DEFAULT;
-  constructor(eventsList, changeData, changeMode)
-  {
+  constructor(eventsList, changeData, changeMode) {
     this.#eventsList = eventsList;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
@@ -97,8 +96,14 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (updatedPoint) => {
-    const isMinorUpdate = this.#point.type !== updatedPoint.type || this.#point.offers !== updatedPoint.offers || this.#point.destination !== updatedPoint.destination;
-    this.#changeData(UserAction.UPDATE_POINT, isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH, updatedPoint);
+    const isMinorUpdate =
+      this.#point.dateFrom !== updatedPoint.dateFrom ||
+      this.#point.basePrice !== updatedPoint.basePrice;
+    this.#changeData(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      updatedPoint
+    );
     this.#replaceFormToPoint();
   };
 
@@ -106,4 +111,3 @@ export default class PointPresenter {
     this.#changeData(UserAction.DELETE_POINT, UpdateType.MINOR, point);
   };
 }
-
