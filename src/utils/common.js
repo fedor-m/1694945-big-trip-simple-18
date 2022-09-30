@@ -5,6 +5,10 @@ export const getRandomInteger = (min, max) => {
   }
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+export const generateRandomString = () => {
+  const length = getRandomInteger(10, 15);
+  return Math.random().toString(36).substring(2, length);
+};
 export const getRandomArrayElement = (elements) => {
   if (!Array.isArray(elements)) {
     return false;
@@ -30,4 +34,7 @@ const getRandomMonth = () => getRandomInteger(1, 12);
 const getRandomDay = () => getRandomInteger(1, 31);
 const getRandomHours = () => getRandomInteger(0, 23);
 const getRandomMinutes = () => getRandomInteger(0, 59);
-export const getRandomDateTime = () => dayjs(`${getYear()}-${getRandomMonth()}-${getRandomDay()} ${getRandomHours()}:${getRandomMinutes()}`);
+export const getRandomDateTime = () =>
+  dayjs(
+    `${getYear()}-${getRandomMonth()}-${getRandomDay()} ${getRandomHours()}:${getRandomMinutes()}`,
+  );
