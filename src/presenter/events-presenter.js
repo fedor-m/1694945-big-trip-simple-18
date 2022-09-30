@@ -111,6 +111,8 @@ export default class EventsPresenter {
   #renderPoint = (point) => {
     const pointPresenter = new PointPresenter(
       this.#eventsListView.element,
+      this.#pointsModel.destinations,
+      this.#pointsModel.offers,
       this.#handleViewAction,
       this.#handleModeChange,
     );
