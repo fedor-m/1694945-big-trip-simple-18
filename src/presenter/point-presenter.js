@@ -9,15 +9,19 @@ const Mode = {
   EDITING: 'EDITING',
 };
 export default class PointPresenter {
-  #eventsList;
-  #changeData;
+  #eventsList = null;
+  #destinations = [];
+  #offers = [];
+  #changeData = null;
   #changeMode = null;
   #pointComponent = null;
   #pointEditComponent = null;
   #point = null;
   #mode = Mode.DEFAULT;
-  constructor(eventsList, changeData, changeMode) {
+  constructor(eventsList, destinations, offers, changeData, changeMode) {
     this.#eventsList = eventsList;
+    this.#destinations = destinations;
+    this.#offers = offers;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
   }
@@ -28,13 +32,8 @@ export default class PointPresenter {
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
-    this.#pointComponent = new ViewTripPoint(this.#point);
-    this.#pointEditComponent = new ViewForm(this.#point, ViewFormType.EDIT_FORM);
-
-    this.#pointComponent.setEditClickHandler(this.#handleEditClick);
-    this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
-    this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
-    this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
+    this.#setPointComponent();
+    this.#setPointEditComponent();
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#eventsList);
@@ -63,6 +62,18 @@ export default class PointPresenter {
       this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToPoint();
     }
+  };
+
+  #setPointComponent = () => {
+    this.#pointComponent = new ViewTripPoint(this.#point, this.#destinations, this.#offers);
+    this.#pointComponent.setEditClickHandler(this.#handleEditClick);
+  };
+
+  #setPointEditComponent = () => {
+    this.#pointEditComponent = new ViewForm(this.#point, this.#destinations, this.#offers, ViewFormType.EDIT_FORM);
+    this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
+    this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
+    this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
   };
 
   #replacePointToForm = () => {
