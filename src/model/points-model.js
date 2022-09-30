@@ -3,8 +3,8 @@ import { UpdateType } from '../const/actions.js';
 export default class PointsModel extends Observable {
   #points = [];
   #pointsApiService = null;
-  #offers = [];
   #destinations = [];
+  #offers = [];
 
   constructor(pointsApiService) {
     super();
