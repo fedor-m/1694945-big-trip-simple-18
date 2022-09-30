@@ -25,3 +25,4 @@ const eventsPresenter = new EventsPresenter(
 
 filtersPresenter.init();
 eventsPresenter.init();
+pointsModel.init();
