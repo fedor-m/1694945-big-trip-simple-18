@@ -1,5 +1,6 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
 import ViewTripEventsList from '../view/view-trip-events-list.js';
+import { MIN_PRICE } from '../const/form.js';
 import ViewLoading from '../view/view-loading.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
@@ -9,6 +10,8 @@ import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { UserAction, UpdateType } from '../const/actions.js';
 import { FILTER_TYPE_DEFAULT } from '../const/filters.js';
+
+const date = new Date().toISOString();
 export default class EventsPresenter {
   #presenterContainer;
   #loadingView = null;
@@ -20,16 +23,15 @@ export default class EventsPresenter {
   #sortView = null;
   #pointPresenters = new Map();
   #newPointPresenter = null;
-  #newPoint = null;
   #currentSortType = SORT_TYPE_DEFAULT;
   constructor(presenterContainer, pointsModel, filtersModel) {
     this.#presenterContainer = presenterContainer;
     this.#loadingView = new ViewLoading();
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
-    this.#newPoint = pointsModel.localPoint;
     this.#newPointPresenter = new NewPointPresenter(
       this.#eventsListView.element,
+      this.#pointsModel,
       this.#handleViewAction,
     );
     this.#pointsModel.addObserver(this.#handleModelEvent);
@@ -46,6 +48,18 @@ export default class EventsPresenter {
         return filteredPoints.sort(sortByPrice);
     }
     return filteredPoints;
+  }
+
+  get newPoint() {
+    return {
+      basePrice: MIN_PRICE,
+      dateFrom: date,
+      dateTo: date,
+      type: this.#pointsModel.offers[0].type,
+      destination: this.#pointsModel.destinations[0].id,
+      offers: [],
+      isFavorite: false,
+    };
   }
 
   get currentFilter() {
@@ -73,7 +87,7 @@ export default class EventsPresenter {
       addNewEventButton.disabled = false;
     };
     const handleNewEventButtonClick = () => {
-      this.#createNewEvent(handleNewEventFormClose, this.#newPoint);
+      this.#createNewEvent(handleNewEventFormClose, this.newPoint);
       addNewEventButton.disabled = true;
     };
     this.#eventsListView.setCreateNewEventHandler(handleNewEventButtonClick);
