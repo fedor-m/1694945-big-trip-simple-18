@@ -1,34 +1,28 @@
 import Observable from '../framework/observable.js';
-import { getRandomInteger } from '../utils/common.js';
-import { generatePoint } from '../mock/point.js';
-import { generateLocalPoint } from '../mock/local-point.js';
-import { sortByDay } from '../utils/point.js';
-const MIN_POINTS = 0;
-const MAX_POINTS = 10;
-const tripPointsCount = getRandomInteger(MIN_POINTS, MAX_POINTS);
+import { UpdateType } from '../const/actions.js';
 export default class PointsModel extends Observable {
+  #points = [];
   #pointsApiService = null;
-  #points = Array.from({ length: tripPointsCount }, generatePoint).sort(
-    sortByDay,
-  );
-
-  #localPoint = generateLocalPoint();
 
   constructor(pointsApiService) {
     super();
     this.#pointsApiService = pointsApiService;
-    this.#pointsApiService.points.then((points) => {
-      console.log(points.map(this.#adaptToClient));
-    });
   }
 
   get points() {
     return this.#points;
   }
 
-  get localPoint() {
-    return this.#localPoint;
-  }
+  init = async () => {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch (err) {
+      this.#points = [];
+    }
+    this._notify(UpdateType.INIT);
+  };
+
 
   updatePoint = (updateType, update) => {
     const index = this.#points.findIndex((point) => point.id === update.id);
