@@ -43,3 +43,10 @@ export const filter = {
   [FilterType.EVERYTHING]: (points) => points,
   [FilterType.FUTURE]: (points) => points.filter((point) => isPointSameOrAfterToday(point) || isPointEarlierTodayButLonger(point)),
 };
+export const findDestinationByID = (destinations, destination) =>
+  (destinations.find((item) => item.id === destination));
+export const findOffersByType = (offers, type) => {
+  const offersByType = offers.find((offer) => offer.type === type);
+  return offersByType ? offersByType.offers : [];
+};
+export const findOffersPointSelected = (offers, offersPoint) => (offers.filter((offer) => offersPoint.find((id) => offer.id === id)));
