@@ -6,13 +6,15 @@ import { UserAction, UpdateType } from '../const/actions.js';
 import { nanoid } from 'nanoid';
 export default class NewPointPresenter {
   #addEventComponent = null;
-  #changeData = null;
   #eventsListContainer = null;
+  #pointsModel = null;
+  #changeData = null;
   #destroyCallback = null;
   #point = null;
 
-  constructor(eventsListContainer, changeData) {
+  constructor(eventsListContainer, pointsModel, changeData) {
     this.#eventsListContainer = eventsListContainer;
+    this.#pointsModel = pointsModel;
     this.#changeData = changeData;
   }
 
@@ -25,6 +27,8 @@ export default class NewPointPresenter {
     }
     this.#addEventComponent = new ViewForm(
       this.#point,
+      this.#pointsModel.destinations,
+      this.#pointsModel.offers,
       ViewFormType.ADD_FORM,
     );
     this.#addEventComponent.setFormSubmitHandler(this.#handleFormSubmit);
