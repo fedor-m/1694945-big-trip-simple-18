@@ -1,5 +1,7 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
 import ViewTripEventsList from '../view/view-trip-events-list.js';
+import { MIN_PRICE } from '../const/form.js';
+import ViewLoading from '../view/view-loading.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
 import { SortType, SORT_TYPE_DEFAULT } from '../const/sort.js';
@@ -8,8 +10,12 @@ import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { UserAction, UpdateType } from '../const/actions.js';
 import { FILTER_TYPE_DEFAULT } from '../const/filters.js';
+
+const date = new Date().toISOString();
 export default class EventsPresenter {
   #presenterContainer;
+  #loadingView = null;
+  #isLoading = true;
   #pointsModel = null;
   #filtersModel = null;
   #noEventsView = null;
@@ -17,14 +23,17 @@ export default class EventsPresenter {
   #sortView = null;
   #pointPresenters = new Map();
   #newPointPresenter = null;
-  #newPoint = null;
   #currentSortType = SORT_TYPE_DEFAULT;
   constructor(presenterContainer, pointsModel, filtersModel) {
     this.#presenterContainer = presenterContainer;
+    this.#loadingView = new ViewLoading();
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
-    this.#newPoint = pointsModel.localPoint;
-    this.#newPointPresenter = new NewPointPresenter(this.#eventsListView.element, this.#handleViewAction);
+    this.#newPointPresenter = new NewPointPresenter(
+      this.#eventsListView.element,
+      this.#pointsModel,
+      this.#handleViewAction,
+    );
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filtersModel.addObserver(this.#handleModelEvent);
   }
@@ -41,7 +50,19 @@ export default class EventsPresenter {
     return filteredPoints;
   }
 
-  get currentFilter () {
+  get newPoint() {
+    return {
+      basePrice: MIN_PRICE,
+      dateFrom: date,
+      dateTo: date,
+      type: this.#pointsModel.offers[0].type,
+      destination: this.#pointsModel.destinations[0].id,
+      offers: [],
+      isFavorite: false,
+    };
+  }
+
+  get currentFilter() {
     return this.#filtersModel.currentFilter;
   }
 
@@ -54,17 +75,27 @@ export default class EventsPresenter {
     render(this.#noEventsView, this.#presenterContainer);
   };
 
+  #renderLoading = () => {
+    render(this.#loadingView, this.#presenterContainer);
+  };
+
   #renderEventsList = () => {
-    const addNewEventButton = document.querySelector('.trip-main__event-add-btn');
+    const addNewEventButton = document.querySelector(
+      '.trip-main__event-add-btn',
+    );
     const handleNewEventFormClose = () => {
       addNewEventButton.disabled = false;
     };
     const handleNewEventButtonClick = () => {
-      this.#createNewEvent(handleNewEventFormClose, this.#newPoint);
+      this.#createNewEvent(handleNewEventFormClose, this.newPoint);
       addNewEventButton.disabled = true;
     };
     this.#eventsListView.setCreateNewEventHandler(handleNewEventButtonClick);
     render(this.#eventsListView, this.#presenterContainer);
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
     if (this.points.length === 0) {
       this.#renderNoEvents();
       return;
@@ -92,7 +123,13 @@ export default class EventsPresenter {
   };
 
   #renderPoint = (point) => {
-    const pointPresenter = new PointPresenter(this.#eventsListView.element, this.#handleViewAction, this.#handleModeChange);
+    const pointPresenter = new PointPresenter(
+      this.#eventsListView.element,
+      this.#pointsModel.destinations,
+      this.#pointsModel.offers,
+      this.#handleViewAction,
+      this.#handleModeChange,
+    );
     pointPresenter.init(point);
     this.#pointPresenters.set(point.id, pointPresenter);
   };
@@ -126,9 +163,16 @@ export default class EventsPresenter {
         this.#renderEventsList();
         break;
       case UpdateType.MAJOR:
-        this.#clearEventsList({resetRenderedPointCount: true, resetSortType: true});
+        this.#clearEventsList({
+          resetRenderedPointCount: true,
+          resetSortType: true,
+        });
         this.#renderEventsList();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingView);
+        this.#renderEventsList();
     }
   };
 
@@ -137,11 +181,11 @@ export default class EventsPresenter {
       return;
     }
     this.#currentSortType = sortType;
-    this.#clearEventsList({resetRenderedPointCount: true});
+    this.#clearEventsList({ resetRenderedPointCount: true });
     this.#renderEventsList();
   };
 
-  #clearEventsList = ({resetSortType = false} = {}) => {
+  #clearEventsList = ({ resetSortType = false } = {}) => {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
     remove(this.#sortView);
