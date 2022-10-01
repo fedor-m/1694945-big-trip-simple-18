@@ -6,7 +6,7 @@ import { generateRandomString } from './utils/common.js';
 import PointsApiService from './api/points-api-service.js';
 
 const AUTHORIZATION = `Basic ${generateRandomString()}`;
-const END_POINT = 'https://18.ecmascript.pages.academy/big-trip/';
+const END_POINT = 'https://18.ecmascript.pages.academy/big-trip';
 
 const tripFiltersSection = document.querySelector('.trip-controls__filters');
 const tripEventsSection = document.querySelector('.trip-events');
