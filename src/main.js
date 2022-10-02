@@ -2,7 +2,7 @@ import PointsModel from './model/points-model.js';
 import FiltersModel from './model/filters-model.js';
 import EventsPresenter from './presenter/events-presenter.js';
 import FiltersPresenter from './presenter/filters-presenter.js';
-import { generateRandomString } from './utils/common.js';
+import { generateRandomString } from './utils/utils.js';
 import PointsApiService from './api/points-api-service.js';
 
 const AUTHORIZATION = `Basic ${generateRandomString()}`;
