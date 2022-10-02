@@ -60,13 +60,19 @@ export default class NewPointPresenter {
     document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 
+  setSaving = () => {
+    this.#addEventComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
   #handleFormSubmit = (point) => {
     this.#changeData(
       UserAction.ADD_POINT,
       UpdateType.MINOR, {
         ...point,
       });
-    this.destroy();
     document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 

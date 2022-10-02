@@ -46,6 +46,7 @@ export default class PointPresenter {
 
     if (this.#mode === Mode.EDITING) {
       replace(this.#pointEditComponent, prevPointEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevPointComponent);
@@ -64,13 +65,40 @@ export default class PointPresenter {
     }
   };
 
+  setSaving = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  };
+
+  setDeleting = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  };
+
   #setPointComponent = () => {
-    this.#pointComponent = new ViewTripPoint(this.#point, this.#destinations, this.#offers);
+    this.#pointComponent = new ViewTripPoint(
+      this.#point,
+      this.#destinations,
+      this.#offers
+    );
     this.#pointComponent.setEditClickHandler(this.#handleEditClick);
   };
 
   #setPointEditComponent = () => {
-    this.#pointEditComponent = new ViewForm(this.#point, this.#destinations, this.#offers, ViewFormType.EDIT_FORM);
+    this.#pointEditComponent = new ViewForm(
+      this.#point,
+      this.#destinations,
+      this.#offers,
+      ViewFormType.EDIT_FORM
+    );
     this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
     this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
     this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
@@ -115,10 +143,13 @@ export default class PointPresenter {
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       updatedPoint
     );
-    this.#replaceFormToPoint();
   };
 
   #handleFormReset = (point) => {
-    this.#changeData(UserAction.DELETE_POINT, UpdateType.MINOR, point);
+    this.#changeData(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point
+    );
   };
 }
