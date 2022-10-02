@@ -21,7 +21,7 @@ export default class EventsPresenter {
   #noEventsView = null;
   #eventsListView = new ViewTripEventsList();
   #sortView = null;
-  #pointPresenters = new Map();
+  #pointsPresenter = new Map();
   #newPointPresenter = null;
   #currentSortType = SORT_TYPE_DEFAULT;
   constructor(presenterContainer, pointsModel, filtersModel) {
@@ -131,23 +131,26 @@ export default class EventsPresenter {
       this.#handleModeChange,
     );
     pointPresenter.init(point);
-    this.#pointPresenters.set(point.id, pointPresenter);
+    this.#pointsPresenter.set(point.id, pointPresenter);
   };
 
   #handleModeChange = () => {
     this.#newPointPresenter.destroy();
-    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+    this.#pointsPresenter.forEach((presenter) => presenter.resetView());
   };
 
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
+        this.#pointsPresenter.get(update.id).setSaving();
         this.#pointsModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_POINT:
+        this.#pointsPresenter.setSaving();
         this.#pointsModel.addPoint(updateType, update);
         break;
       case UserAction.DELETE_POINT:
+        this.#pointsPresenter.get(update.id).setDeleting();
         this.#pointsModel.deletePoint(updateType, update);
         break;
     }
@@ -156,7 +159,7 @@ export default class EventsPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#pointPresenters.get(data.id).init(data);
+        this.#pointsPresenter.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
         this.#clearEventsList();
@@ -186,8 +189,8 @@ export default class EventsPresenter {
   };
 
   #clearEventsList = ({ resetSortType = false } = {}) => {
-    this.#pointPresenters.forEach((presenter) => presenter.destroy());
-    this.#pointPresenters.clear();
+    this.#pointsPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointsPresenter.clear();
     remove(this.#sortView);
     remove(this.#noEventsView);
     if (resetSortType) {
