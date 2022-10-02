@@ -420,6 +420,7 @@ export default class ViewForm extends AbstractStatefulView {
   #typeSelectHandler = (evt) => {
     this.updateElement({
       type: he.encode(evt.target.value),
+      offers: []
     });
   };
 
@@ -495,13 +496,13 @@ export default class ViewForm extends AbstractStatefulView {
 
   #dateFromSelectHandler = ([dateFrom]) => {
     this.updateElement({
-      dateFrom: formatDateToISOString(he.encode(dateFrom)),
+      dateFrom: formatDateToISOString(he.encode(String(dateFrom))),
     });
   };
 
   #dateToSelectHandler = ([dateTo]) => {
     this.updateElement({
-      dateTo: formatDateToISOString(he.encode(dateTo)),
+      dateTo: formatDateToISOString(he.encode(String(dateTo))),
     });
   };
 
