@@ -209,10 +209,15 @@ export default class EventsPresenter {
   };
 
   #clearEventsList = ({ resetSortType = false } = {}) => {
+    this.#newPointPresenter.destroy();
     this.#pointsPresenter.forEach((presenter) => presenter.destroy());
     this.#pointsPresenter.clear();
     remove(this.#sortView);
-    remove(this.#noEventsView);
+    remove(this.#loadingView);
+    if(this.#noEventsView)
+    {
+      remove(this.#noEventsView);
+    }
     if (resetSortType) {
       this.#currentSortType = SORT_TYPE_DEFAULT;
     }
