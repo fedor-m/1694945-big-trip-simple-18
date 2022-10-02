@@ -10,7 +10,7 @@ import {
   findOffersByType,
   findOffersPointSelected,
 } from '../utils/utils.js';
-import { MIN_PRICE, ViewFormType, ViewFormTypeButton } from '../const/form.js';
+import { MIN_PRICE, ViewFormType, ViewFormTypeResetButtonText } from '../const/form.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
@@ -18,7 +18,8 @@ import he from 'he';
 const DATE_FORMAT_INPUT = 'd/m/y H:i';
 const MINUTE_INCREMENT = 1;
 const RADIX = 10;
-const createEventTypeTemplate = (offers, type) => {
+
+const createEventTypeTemplate = (offers, type, isDisabled) => {
   const types = getEventTypes(offers);
   const eventTypesMarkup = types
     .map(
@@ -31,6 +32,7 @@ const createEventTypeTemplate = (offers, type) => {
         name="event-type"
         value="${item}"
         ${item === type ? 'checked=""' : ''}
+        ${isDisabled ? 'disabled' : ''}
       >
       <label
         class="event__type-label event__type-label--${item}"
@@ -60,6 +62,7 @@ const createEventTypeTemplate = (offers, type) => {
   	    class="event__type-toggle visually-hidden"
   	    id="event-type-toggle-1"
   	    type="checkbox"
+        ${isDisabled ? 'disabled' : ''}
   	  >
   	  <div class="event__type-list">
   	    <fieldset class="event__type-group">
@@ -74,13 +77,14 @@ const createEventFieldGroupDestinationTemplate = (
   type,
   destination,
   destinations,
+  isDisabled
 ) => {
   const destinationName =
     !!destination && !!destination.name && destination.name.length > 0
       ? destination.name
       : '';
   const datalistOptions = destinations
-    .map((item) => `<option value="${item.name}"></option>`)
+    .map((item) => `<option value="${item.name}" ${isDisabled ? 'disabled' : ''}></option>`)
     .join();
   return `
     <div class="event__field-group event__field-group--destination">
@@ -96,6 +100,7 @@ const createEventFieldGroupDestinationTemplate = (
         type="text"
         name="event-destination"
         value="${destinationName}"
+        ${isDisabled ? 'disabled' : ''}
         list="destination-list-1">
       <datalist id="destination-list-1">
         ${datalistOptions}
@@ -103,7 +108,11 @@ const createEventFieldGroupDestinationTemplate = (
     </div>
   `;
 };
-const createEventFieldGroupTimeTemplate = (dateFrom, dateTo) => {
+const createEventFieldGroupTimeTemplate = (
+  dateFrom,
+  dateTo,
+  isDisabled
+) => {
   const dateStart = getDateTimeFormatBasic(dateFrom);
   const dateEnd = getDateTimeFormatBasic(dateTo);
   return `
@@ -120,6 +129,7 @@ const createEventFieldGroupTimeTemplate = (dateFrom, dateTo) => {
       type="text"
       name="event-start-time"
       value="${dateStart}"
+      ${isDisabled ? 'disabled' : ''}
     >
     &nbsp;
     —
@@ -136,11 +146,12 @@ const createEventFieldGroupTimeTemplate = (dateFrom, dateTo) => {
       type="text"
       name="event-end-time"
       value="${dateEnd}"
+      ${isDisabled ? 'disabled' : ''}
     >
     </div>
   `;
 };
-const createEventFieldGroupPriceTemplate = (price) =>
+const createEventFieldGroupPriceTemplate = (price, isDisabled) =>
   `<div
       class="event__field-group event__field-group--price"
     >
@@ -156,6 +167,7 @@ const createEventFieldGroupPriceTemplate = (price) =>
         id="event-price-1"
         name="event-price"
         value="${price}"
+        ${isDisabled ? 'disabled' : ''}
       >
   </div>`;
 const createRollupButtonTemplate = (formType) =>
@@ -169,7 +181,7 @@ const createRollupButtonTemplate = (formType) =>
       </span>
     </button>`
     : '';
-const createEventSectionDestination = (destination, formType) => {
+const createEventSectionDestinationTemplate = (destination, formType) => {
   if (!destination) {
     return '';
   }
@@ -210,7 +222,7 @@ const createEventSectionDestination = (destination, formType) => {
     </section>
   `;
 };
-const createEventSectionOffers = (options, offers) => {
+const createEventSectionOffersTemplate = (options, offers, isDisabled) => {
   const offersListItemsTemplate = offers
     .map(
       (offer) =>
@@ -222,6 +234,7 @@ const createEventSectionOffers = (options, offers) => {
         name="event-${getStringWithoutSpaces(offer.title)}"
         ${options.find((option) => option.id === offer.id) ? 'checked=""' : ''}
         value="${offer.id}"
+        ${isDisabled ? 'disabled' : ''}
       >
       <label
         class="event__offer-label"
@@ -245,7 +258,27 @@ const createEventSectionOffers = (options, offers) => {
   </section>`
     : '';
 };
-const createFormTemplate = (point, destinations, offers, formType) => {
+const createSubmitButtonTemplate = (isDisabled, isSaving) => `
+  <button
+    class="event__save-btn btn btn--blue"
+    type="submit"
+    ${isDisabled ? 'disabled' : ''}
+  >
+  ${isSaving ? 'Saving' : 'Save'}
+  </button>`;
+const createResetButtonTemplate = (formType, isDisabled, isDeleting) =>
+  `<button
+    class="event__reset-btn"
+    type="reset"
+    ${isDisabled ? 'disabled' : ''}
+  >
+    ${isDeleting ? 'Deleting' : ViewFormTypeResetButtonText[formType]}
+  </button>`;
+const createFormTemplate = (
+  point,
+  destinations,
+  offers,
+  formType) => {
   const {
     type,
     destination,
@@ -253,43 +286,39 @@ const createFormTemplate = (point, destinations, offers, formType) => {
     dateTo,
     basePrice,
     offers: options,
+    isDisabled,
+    isDeleting,
+    isSaving
   } = point;
+
   const offersByType = findOffersByType(offers, type);
-  const eventTypeTemplate = createEventTypeTemplate(offers, type);
+  const eventTypeTemplate = createEventTypeTemplate(offers, type, isDisabled);
   const eventFieldGroupDestinationTemplate = createEventFieldGroupDestinationTemplate(
     type,
     destination,
     destinations,
+    isDisabled
   );
   const eventFieldGroupTimeTemplate = createEventFieldGroupTimeTemplate(
     dateFrom,
     dateTo,
+    isDisabled
   );
   const eventFieldGroupPriceTemplate = createEventFieldGroupPriceTemplate(
     basePrice,
+    isDisabled
   );
-  const submitButtonTemplate = `
-    <button
-      class="event__save-btn btn btn--blue"
-      type="submit"
-    >
-    Save
-    </button>`;
-  const resetButtonTemplate = `
-  <button
-    class="event__reset-btn"
-    type="reset"
-  >
-    ${ViewFormTypeButton[formType]}
-  </button>`;
+  const submitButtonTemplate = createSubmitButtonTemplate(isDisabled, isSaving);
+  const resetButtonTemplate = createResetButtonTemplate(formType, isDisabled, isDeleting);
   const rollupButtonTemplate = createRollupButtonTemplate(formType);
-  const eventSectionDestinationTemplate = createEventSectionDestination(
+  const eventSectionDestinationTemplate = createEventSectionDestinationTemplate(
     destination,
     formType,
   );
-  const eventSectionOffersTemplate = createEventSectionOffers(
+  const eventSectionOffersTemplate = createEventSectionOffersTemplate(
     options,
     offersByType,
+    isDisabled
   );
   return `
     <li class="trip-events__item">
@@ -526,16 +555,22 @@ export default class ViewForm extends AbstractStatefulView {
       offers: findOffersPointSelected(offersByType, point.offers),
       offersByType: offersByType,
       destination: findDestinationByID(destinations, point.destination),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
     };
   };
 
   static parseStateToPoint = (state) => {
-    const data = {
+    const point = {
       ...state,
       offers: state.offers.map((offer) => offer?.id),
       destination: state.destination.id,
     };
-    delete data.offersByType;
-    return data;
+    delete point.offersByType;
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+    return point;
   };
 }
