@@ -32,8 +32,21 @@ export default class PointPresenter {
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
-    this.#setPointComponent();
-    this.#setPointEditComponent();
+    this.#pointComponent = new ViewTripPoint(
+      this.#point,
+      this.#destinations,
+      this.#offers
+    );
+    this.#pointComponent.setEditClickHandler(this.#handleEditClick);
+    this.#pointEditComponent = new ViewForm(
+      this.#point,
+      this.#destinations,
+      this.#offers,
+      ViewFormType.EDIT_FORM
+    );
+    this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
+    this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
+    this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#eventsList);
@@ -83,26 +96,6 @@ export default class PointPresenter {
     }
   };
 
-  #setPointComponent = () => {
-    this.#pointComponent = new ViewTripPoint(
-      this.#point,
-      this.#destinations,
-      this.#offers
-    );
-    this.#pointComponent.setEditClickHandler(this.#handleEditClick);
-  };
-
-  #setPointEditComponent = () => {
-    this.#pointEditComponent = new ViewForm(
-      this.#point,
-      this.#destinations,
-      this.#offers,
-      ViewFormType.EDIT_FORM
-    );
-    this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
-    this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
-    this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
-  };
 
   setAborting = () => {
     if (this.#mode === Mode.DEFAULT) {
@@ -139,6 +132,7 @@ export default class PointPresenter {
       evt.preventDefault();
       this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToPoint();
+      document.removeEventListener('keydown', this.#onEscKeyDown);
     }
   };
 
@@ -168,5 +162,6 @@ export default class PointPresenter {
       UpdateType.MINOR,
       point
     );
+    document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 }
