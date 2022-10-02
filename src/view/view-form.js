@@ -9,7 +9,7 @@ import {
   findDestinationByName,
   findOffersByType,
   findOffersPointSelected,
-} from '../utils/point.js';
+} from '../utils/utils.js';
 import { MIN_PRICE, ViewFormType, ViewFormTypeButton } from '../const/form.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
