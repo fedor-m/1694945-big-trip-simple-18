@@ -9,19 +9,26 @@ const getWeightForNullDate = (dateA, dateB) => {
   if (dateA === null && dateB === null) {
     return 0;
   }
-
   if (dateA === null) {
     return 1;
   }
-
   if (dateB === null) {
     return -1;
   }
 
   return null;
 };
-const searchRegExp = /[a-z-]/ig;
 
+export const getRandomInteger = (min, max) => {
+  if (isNaN(min) || isNaN(max) || min < 0 || min >= max) {
+    return false;
+  }
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+export const generateRandomString = () => {
+  const length = getRandomInteger(10, 15);
+  return Math.random().toString(36).substring(2, length);
+};
 export const isEscKey = (key) => key === ESCAPE_CODE || key === ESC_CODE;
 export const getStringWithoutSpaces = (string) => string.replaceAll(' ', '-').toLowerCase();
 export const getCapitalizedString = (string) => `${string[0].toUpperCase()}${string.slice(1)}`;
@@ -32,11 +39,9 @@ export const getDateTimeFormatBasic = (date) => dayjs(date).format('DD/MM/YY HH:
 export const formatDateToISOString = (date) => dayjs(date).toISOString();
 export const sortByDay = (pointA, pointB) => {
   const weight = getWeightForNullDate(pointA.dueDate, pointB.dueDate);
-
   return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
 };
 export const sortByPrice = (pointA, pointB) => Number(pointA.basePrice) - Number(pointB.basePrice);
-export const getNumberFromString = (string) => Number(string.replaceAll(searchRegExp, ''));
 const isPointSameOrAfterToday = (point) => dayjs(getDateFormatBasic(point.dateFrom)).isSameOrAfter(getDateFormatBasic(dayjs(new Date())));
 const isPointEarlierTodayButLonger = (point) => dayjs(getDateFormatBasic(point.dateTo)).isAfter(getDateFormatBasic(dayjs(new Date())));
 export const filter = {
