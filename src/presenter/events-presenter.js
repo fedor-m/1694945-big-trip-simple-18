@@ -1,4 +1,5 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import ViewTripEventsList from '../view/view-trip-events-list.js';
 import { MIN_PRICE } from '../const/form.js';
 import ViewLoading from '../view/view-loading.js';
@@ -12,6 +13,10 @@ import { UserAction, UpdateType } from '../const/actions.js';
 import { FILTER_TYPE_DEFAULT } from '../const/filters.js';
 
 const date = new Date().toISOString();
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 export default class EventsPresenter {
   #presenterContainer;
   #loadingView = null;
@@ -24,6 +29,7 @@ export default class EventsPresenter {
   #pointsPresenter = new Map();
   #newPointPresenter = null;
   #currentSortType = SORT_TYPE_DEFAULT;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
   constructor(presenterContainer, pointsModel, filtersModel) {
     this.#presenterContainer = presenterContainer;
     this.#loadingView = new ViewLoading();
@@ -139,13 +145,14 @@ export default class EventsPresenter {
     this.#pointsPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = async(actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this.#pointsPresenter.get(update.id).setSaving();
         try {
           await this.#pointsModel.updatePoint(updateType, update);
-        } catch(err) {
+        } catch (err) {
           this.#pointsPresenter.get(update.id).setAborting();
         }
         break;
@@ -153,7 +160,7 @@ export default class EventsPresenter {
         this.#newPointPresenter.setSaving();
         try {
           await this.#pointsModel.addPoint(updateType, update);
-        } catch(err) {
+        } catch (err) {
           this.#newPointPresenter.setAborting();
         }
         break;
@@ -161,11 +168,12 @@ export default class EventsPresenter {
         this.#pointsPresenter.get(update.id).setDeleting();
         try {
           await this.#pointsModel.deletePoint(updateType, update);
-        } catch(err) {
+        } catch (err) {
           this.#pointsPresenter.get(update.id).setAborting();
         }
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
