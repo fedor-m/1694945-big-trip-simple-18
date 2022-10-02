@@ -77,3 +77,4 @@ export const findOffersByType = (offers, type) => {
 };
 export const findOffersPointSelected = (offers, offersPoint) =>
   offers.filter((offer) => offersPoint.find((id) => offer.id === id));
+export const isDatesSame = (dateA, dateB) => (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
