@@ -1,5 +1,5 @@
 import { render, replace, remove } from '../framework/render.js';
-import ViewTripPoint from '../view/view-trip-utils.js';
+import ViewTripPoint from '../view/view-trip-point.js';
 import ViewForm from '../view/view-form.js';
 import { isEscKey } from '../utils/utils.js';
 import { UserAction, UpdateType } from '../const/actions.js';
