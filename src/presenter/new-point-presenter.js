@@ -82,9 +82,9 @@ export default class NewPointPresenter {
   #handleFormSubmit = (point) => {
     this.#changeData(
       UserAction.ADD_POINT,
-      UpdateType.MINOR, {
-        ...point,
-      });
+      UpdateType.MINOR,
+      point
+    );
     document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 
