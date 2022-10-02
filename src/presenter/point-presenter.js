@@ -1,7 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import ViewTripPoint from '../view/view-trip-point.js';
 import ViewForm from '../view/view-form.js';
-import { isEscKey } from '../utils/utils.js';
+import { isDatesSame, isEscKey } from '../utils/utils.js';
 import { UserAction, UpdateType } from '../const/actions.js';
 import { ViewFormType } from '../const/form.js';
 const Mode = {
@@ -153,8 +153,8 @@ export default class PointPresenter {
 
   #handleFormSubmit = (updatedPoint) => {
     const isMinorUpdate =
-      this.#point.dateFrom !== updatedPoint.dateFrom ||
-      this.#point.basePrice !== updatedPoint.basePrice;
+      !isDatesSame(this.#point.dateFrom, updatedPoint.dateFrom) ||
+      !this.#point.basePrice === updatedPoint.basePrice;
     this.#changeData(
       UserAction.UPDATE_POINT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
