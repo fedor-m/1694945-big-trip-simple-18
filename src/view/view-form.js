@@ -455,7 +455,9 @@ export default class ViewForm extends AbstractStatefulView {
   #priceSelectHandler = (evt) => {
     const basePrice = parseInt(he.encode(evt.target.value.trim()), RADIX);
     if (isNaN(basePrice) || basePrice < MIN_PRICE) {
-      evt.target.value = parseInt(he.encode(this._state.basePrice), RADIX);
+      this._state.isDisabled = true;
+      evt.target.value = parseInt(he.encode(String(this._state.basePrice)), RADIX);
+      this._state.isDisabled = false;
       return;
     }
     this.updateElement({
