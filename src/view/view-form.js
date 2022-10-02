@@ -375,7 +375,8 @@ export default class ViewForm extends AbstractStatefulView {
   };
 
   _restoreHandlers = () => {
-    this.#setDatetimePickers();
+    this.#setDatetimeFromDatepicker();
+    this.#setDatetimeToDatepicker();
     this.#setInnerHandlers();
     this.#restoreFormHandlers();
   };
@@ -395,26 +396,6 @@ export default class ViewForm extends AbstractStatefulView {
     this.element
       .querySelector('.event__input--price')
       .addEventListener('change', this.#priceSelectHandler);
-    this.#setFormHandlers();
-  };
-
-  #setFormHandlers = () => {
-    this.element
-      .querySelector('form')
-      .addEventListener('submit', this.#formSubmitHandler);
-    this.element
-      .querySelector('form')
-      .addEventListener('reset', this.#formResetHandler);
-    if (this.#formType === ViewFormType.EDIT_FORM) {
-      this.element
-        .querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#formRollupHandler);
-    }
-  };
-
-  #setDatetimePickers = () => {
-    this.#setDatetimeFromDatepicker();
-    this.#setDatetimeToDatepicker();
   };
 
   #typeSelectHandler = (evt) => {
@@ -526,6 +507,7 @@ export default class ViewForm extends AbstractStatefulView {
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
   };
 
   #formSubmitHandler = (evt) => {
@@ -534,7 +516,14 @@ export default class ViewForm extends AbstractStatefulView {
   };
 
   setFormRollupHandler = (callback) => {
+    if(this.#formType === ViewFormType.ADD_FORM)
+    {
+      return;
+    }
     this._callback.click = callback;
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#formRollupHandler);
   };
 
   #formRollupHandler = (evt) => {
@@ -544,6 +533,9 @@ export default class ViewForm extends AbstractStatefulView {
 
   setFormResetHandler = (callback) => {
     this._callback.formReset = callback;
+    this.element
+      .querySelector('form')
+      .addEventListener('reset', this.#formResetHandler);
   };
 
   #formResetHandler = (evt) => {
