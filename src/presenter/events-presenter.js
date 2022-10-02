@@ -176,10 +176,10 @@ export default class EventsPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handleModelEvent = (updateType, data) => {
+  #handleModelEvent = (updateType, point) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#pointsPresenter.get(data.id).init(data);
+        this.#pointsPresenter.get(point.id).init(point);
         break;
       case UpdateType.MINOR:
         this.#clearEventsList();
