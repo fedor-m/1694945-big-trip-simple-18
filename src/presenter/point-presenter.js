@@ -1,7 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
-import ViewTripPoint from '../view/view-trip-point.js';
+import ViewTripPoint from '../view/view-trip-utils.js';
 import ViewForm from '../view/view-form.js';
-import { isEscKey } from '../utils/point.js';
+import { isEscKey } from '../utils/utils.js';
 import { UserAction, UpdateType } from '../const/actions.js';
 import { ViewFormType } from '../const/form.js';
 const Mode = {

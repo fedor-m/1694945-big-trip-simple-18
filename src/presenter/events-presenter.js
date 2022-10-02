@@ -5,7 +5,7 @@ import ViewLoading from '../view/view-loading.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
 import { SortType, SORT_TYPE_DEFAULT } from '../const/sort.js';
-import { filter, sortByDay, sortByPrice } from '../utils/point.js';
+import { filter, sortByDay, sortByPrice } from '../utils/utils.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { UserAction, UpdateType } from '../const/actions.js';

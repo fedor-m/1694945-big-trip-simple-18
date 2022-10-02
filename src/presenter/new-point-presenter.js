@@ -1,7 +1,7 @@
 import { remove, render, RenderPosition } from '../framework/render.js';
 import ViewForm from '../view/view-form.js';
 import { ViewFormType } from '../const/form.js';
-import { isEscKey } from '../utils/point.js';
+import { isEscKey } from '../utils/utils.js';
 import { UserAction, UpdateType } from '../const/actions.js';
 export default class NewPointPresenter {
   #addEventComponent = null;
