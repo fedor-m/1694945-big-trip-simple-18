@@ -32,21 +32,9 @@ export default class PointPresenter {
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
-    this.#pointComponent = new ViewTripPoint(
-      this.#point,
-      this.#destinations,
-      this.#offers
-    );
-    this.#pointComponent.setEditClickHandler(this.#handleEditClick);
-    this.#pointEditComponent = new ViewForm(
-      this.#point,
-      this.#destinations,
-      this.#offers,
-      ViewFormType.EDIT_FORM
-    );
-    this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
-    this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
-    this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
+    this.#setPointComponent();
+    this.#setEditPointComponent();
+
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#eventsList);
@@ -58,12 +46,33 @@ export default class PointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#pointEditComponent, prevPointEditComponent);
+      replace(this.#pointComponent, prevPointEditComponent);
       this.#mode = Mode.DEFAULT;
     }
 
     remove(prevPointComponent);
     remove(prevPointEditComponent);
+  };
+
+  #setPointComponent = () => {
+    this.#pointComponent = new ViewTripPoint(
+      this.#point,
+      this.#destinations,
+      this.#offers
+    );
+    this.#pointComponent.setEditClickHandler(this.#handleEditClick);
+  };
+
+  #setEditPointComponent = () => {
+    this.#pointEditComponent = new ViewForm(
+      this.#point,
+      this.#destinations,
+      this.#offers,
+      ViewFormType.EDIT_FORM
+    );
+    this.#pointEditComponent.setFormRollupHandler(this.#handleFormRollup);
+    this.#pointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
+    this.#pointEditComponent.setFormResetHandler(this.#handleFormReset);
   };
 
   destroy = () => {
@@ -147,19 +156,9 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (updatedPoint) => {
-    const isValuesSame =
-      this.#point.type === updatedPoint.type &&
-      this.#point.destination === updatedPoint.destination &&
-      isDatesSame(this.#point.dateFrom, updatedPoint.dateFrom) &&
-      isDatesSame(this.#point.dateTo, updatedPoint.dateTo) &&
-      this.#point.basePrice === updatedPoint.basePrice;
-    if(isValuesSame) {
-      this.#replaceFormToPoint();
-      return;
-    }
     const isMinorUpdate =
       !isDatesSame(this.#point.dateFrom, updatedPoint.dateFrom) ||
-      !this.#point.basePrice === updatedPoint.basePrice;
+      this.#point.basePrice !== updatedPoint.basePrice;
     this.#changeData(
       UserAction.UPDATE_POINT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
