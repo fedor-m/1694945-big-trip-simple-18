@@ -143,9 +143,20 @@ export default class PointPresenter {
   #handleFormRollup = () => {
     this.#pointEditComponent.reset(this.#point);
     this.#replaceFormToPoint();
+    document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
   #handleFormSubmit = (updatedPoint) => {
+    const isValuesSame =
+      this.#point.type === updatedPoint.type &&
+      this.#point.destination === updatedPoint.destination &&
+      isDatesSame(this.#point.dateFrom, updatedPoint.dateFrom) &&
+      isDatesSame(this.#point.dateTo, updatedPoint.dateTo) &&
+      this.#point.basePrice === updatedPoint.basePrice;
+    if(isValuesSame) {
+      this.#replaceFormToPoint();
+      return;
+    }
     const isMinorUpdate =
       !isDatesSame(this.#point.dateFrom, updatedPoint.dateFrom) ||
       !this.#point.basePrice === updatedPoint.basePrice;
