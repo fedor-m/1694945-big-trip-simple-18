@@ -55,7 +55,7 @@ const createTripPointTemplate = (point, destination, offers) => {
             datetime="
             ${ getDateFormatBasic(dateTo) }
             T
-            ${ getDateFormatTime(dateTo) } ">
+            ${ getDateFormatTime(dateTo) }">
             ${ getDateFormatTime(dateTo) }
           </time>
         </p>
