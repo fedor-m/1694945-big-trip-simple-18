@@ -384,28 +384,28 @@ export default class ViewForm extends AbstractStatefulView {
   #setInnerHandlers = () => {
     this.element
       .querySelector('.event__type-group')
-      .addEventListener('change', this.#typeSelectHandler);
+      .addEventListener('change', this.#typeChangeHandler);
     this.element
       .querySelector('.event__input--destination')
-      .addEventListener('change', this.#destinationSelectHandler);
+      .addEventListener('change', this.#destinationChangeHandler);
     Array.from(
       this.element.querySelectorAll('.event__offer-checkbox'),
     ).forEach((eventType) =>
-      eventType.addEventListener('change', this.#offersSelectHandler),
+      eventType.addEventListener('change', this.#offersChangeHandler),
     );
     this.element
       .querySelector('.event__input--price')
-      .addEventListener('change', this.#priceSelectHandler);
+      .addEventListener('change', this.#priceChangeHandler);
   };
 
-  #typeSelectHandler = (evt) => {
+  #typeChangeHandler = (evt) => {
     this.updateElement({
       type: he.encode(evt.target.value),
       offers: []
     });
   };
 
-  #destinationSelectHandler = (evt) => {
+  #destinationChangeHandler = (evt) => {
     const destinationValue = he.encode(evt.target.value.trim());
     const destination = findDestinationByName(
       this.#destinations,
@@ -420,7 +420,7 @@ export default class ViewForm extends AbstractStatefulView {
     });
   };
 
-  #offersSelectHandler = () => {
+  #offersChangeHandler = () => {
     const selectedOffers = Array.from(
       this.element.querySelectorAll('.event__offer-checkbox'),
     )
@@ -434,7 +434,7 @@ export default class ViewForm extends AbstractStatefulView {
     });
   };
 
-  #priceSelectHandler = (evt) => {
+  #priceChangeHandler = (evt) => {
     const basePrice = parseInt(he.encode(evt.target.value.trim()), RADIX);
     if (isNaN(basePrice) || basePrice < MIN_PRICE) {
       this._state.isDisabled = true;
@@ -454,7 +454,7 @@ export default class ViewForm extends AbstractStatefulView {
         dateFormat: DATE_FORMAT_INPUT,
         enableTime: true,
         maxDate: this._state.dateTo,
-        onChange: this.#dateFromSelectHandler,
+        onChange: this.#onDateFromChange,
         'time_24hr': true,
         minuteIncrement: MINUTE_INCREMENT,
       },
@@ -468,20 +468,20 @@ export default class ViewForm extends AbstractStatefulView {
         dateFormat: DATE_FORMAT_INPUT,
         enableTime: true,
         minDate: this._state.dateFrom,
-        onChange: this.#dateToSelectHandler,
+        onChange: this.#onDateToChange,
         'time_24hr': true,
         minuteIncrement: MINUTE_INCREMENT,
       },
     );
   };
 
-  #dateFromSelectHandler = ([dateFrom]) => {
+  #onDateFromChange = ([dateFrom]) => {
     this.updateElement({
       dateFrom: formatDateToISOString(he.encode(String(dateFrom))),
     });
   };
 
-  #dateToSelectHandler = ([dateTo]) => {
+  #onDateToChange = ([dateTo]) => {
     this.updateElement({
       dateTo: formatDateToISOString(he.encode(String(dateTo))),
     });
