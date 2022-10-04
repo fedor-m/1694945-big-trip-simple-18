@@ -1,7 +1,7 @@
 import { remove, render, RenderPosition } from '../framework/render.js';
 import ViewForm from '../view/view-form.js';
 import { ViewFormType } from '../const/form.js';
-import { isEscKey } from '../utils/point.js';
+import { isEscKey } from '../utils/utils.js';
 import { UserAction, UpdateType } from '../const/actions.js';
 export default class NewPointPresenter {
   #addEventComponent = null;
@@ -60,13 +60,31 @@ export default class NewPointPresenter {
     document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 
+  setSaving = () => {
+    this.#addEventComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#addEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#addEventComponent.shake(resetFormState);
+  };
+
   #handleFormSubmit = (point) => {
     this.#changeData(
       UserAction.ADD_POINT,
-      UpdateType.MINOR, {
-        ...point,
-      });
-    this.destroy();
+      UpdateType.MINOR,
+      point
+    );
     document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 

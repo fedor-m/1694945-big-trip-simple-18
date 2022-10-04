@@ -1,17 +1,22 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import ViewTripEventsList from '../view/view-trip-events-list.js';
 import { MIN_PRICE } from '../const/form.js';
 import ViewLoading from '../view/view-loading.js';
 import ViewNoEvents from '../view/view-no-events.js';
 import ViewSort from '../view/view-sort.js';
 import { SortType, SORT_TYPE_DEFAULT } from '../const/sort.js';
-import { filter, sortByDay, sortByPrice } from '../utils/point.js';
+import { filter, sortByDay, sortByPrice } from '../utils/utils.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { UserAction, UpdateType } from '../const/actions.js';
 import { FILTER_TYPE_DEFAULT } from '../const/filters.js';
 
 const date = new Date().toISOString();
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 export default class EventsPresenter {
   #presenterContainer;
   #loadingView = null;
@@ -21,9 +26,10 @@ export default class EventsPresenter {
   #noEventsView = null;
   #eventsListView = new ViewTripEventsList();
   #sortView = null;
-  #pointPresenters = new Map();
+  #pointsPresenter = new Map();
   #newPointPresenter = null;
   #currentSortType = SORT_TYPE_DEFAULT;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
   constructor(presenterContainer, pointsModel, filtersModel) {
     this.#presenterContainer = presenterContainer;
     this.#loadingView = new ViewLoading();
@@ -131,32 +137,49 @@ export default class EventsPresenter {
       this.#handleModeChange,
     );
     pointPresenter.init(point);
-    this.#pointPresenters.set(point.id, pointPresenter);
+    this.#pointsPresenter.set(point.id, pointPresenter);
   };
 
   #handleModeChange = () => {
     this.#newPointPresenter.destroy();
-    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+    this.#pointsPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#pointsPresenter.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch (err) {
+          this.#pointsPresenter.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch (err) {
+          this.#newPointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#pointsPresenter.get(update.id).setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch (err) {
+          this.#pointsPresenter.get(update.id).setAborting();
+        }
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
-  #handleModelEvent = (updateType, data) => {
+  #handleModelEvent = (updateType, point) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#pointPresenters.get(data.id).init(data);
+        this.#pointsPresenter.get(point.id).init(point);
         break;
       case UpdateType.MINOR:
         this.#clearEventsList();
@@ -186,10 +209,15 @@ export default class EventsPresenter {
   };
 
   #clearEventsList = ({ resetSortType = false } = {}) => {
-    this.#pointPresenters.forEach((presenter) => presenter.destroy());
-    this.#pointPresenters.clear();
+    this.#newPointPresenter.destroy();
+    this.#pointsPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointsPresenter.clear();
     remove(this.#sortView);
-    remove(this.#noEventsView);
+    remove(this.#loadingView);
+    if(this.#noEventsView)
+    {
+      remove(this.#noEventsView);
+    }
     if (resetSortType) {
       this.#currentSortType = SORT_TYPE_DEFAULT;
     }

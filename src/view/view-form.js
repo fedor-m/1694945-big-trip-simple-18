@@ -9,8 +9,8 @@ import {
   findDestinationByName,
   findOffersByType,
   findOffersPointSelected,
-} from '../utils/point.js';
-import { MIN_PRICE, ViewFormType, ViewFormTypeButton } from '../const/form.js';
+} from '../utils/utils.js';
+import { MIN_PRICE, ViewFormType, ViewFormTypeResetButtonText } from '../const/form.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
@@ -18,7 +18,8 @@ import he from 'he';
 const DATE_FORMAT_INPUT = 'd/m/y H:i';
 const MINUTE_INCREMENT = 1;
 const RADIX = 10;
-const createEventTypeTemplate = (offers, type) => {
+
+const createEventTypeTemplate = (offers, type, isDisabled) => {
   const types = getEventTypes(offers);
   const eventTypesMarkup = types
     .map(
@@ -31,6 +32,7 @@ const createEventTypeTemplate = (offers, type) => {
         name="event-type"
         value="${item}"
         ${item === type ? 'checked=""' : ''}
+        ${isDisabled ? 'disabled' : ''}
       >
       <label
         class="event__type-label event__type-label--${item}"
@@ -60,6 +62,7 @@ const createEventTypeTemplate = (offers, type) => {
   	    class="event__type-toggle visually-hidden"
   	    id="event-type-toggle-1"
   	    type="checkbox"
+        ${isDisabled ? 'disabled' : ''}
   	  >
   	  <div class="event__type-list">
   	    <fieldset class="event__type-group">
@@ -74,13 +77,14 @@ const createEventFieldGroupDestinationTemplate = (
   type,
   destination,
   destinations,
+  isDisabled
 ) => {
   const destinationName =
     !!destination && !!destination.name && destination.name.length > 0
       ? destination.name
       : '';
   const datalistOptions = destinations
-    .map((item) => `<option value="${item.name}"></option>`)
+    .map((item) => `<option value="${item.name}" ${isDisabled ? 'disabled' : ''}></option>`)
     .join();
   return `
     <div class="event__field-group event__field-group--destination">
@@ -96,6 +100,7 @@ const createEventFieldGroupDestinationTemplate = (
         type="text"
         name="event-destination"
         value="${destinationName}"
+        ${isDisabled ? 'disabled' : ''}
         list="destination-list-1">
       <datalist id="destination-list-1">
         ${datalistOptions}
@@ -103,7 +108,11 @@ const createEventFieldGroupDestinationTemplate = (
     </div>
   `;
 };
-const createEventFieldGroupTimeTemplate = (dateFrom, dateTo) => {
+const createEventFieldGroupTimeTemplate = (
+  dateFrom,
+  dateTo,
+  isDisabled
+) => {
   const dateStart = getDateTimeFormatBasic(dateFrom);
   const dateEnd = getDateTimeFormatBasic(dateTo);
   return `
@@ -120,6 +129,7 @@ const createEventFieldGroupTimeTemplate = (dateFrom, dateTo) => {
       type="text"
       name="event-start-time"
       value="${dateStart}"
+      ${isDisabled ? 'disabled' : ''}
     >
     &nbsp;
     —
@@ -136,11 +146,12 @@ const createEventFieldGroupTimeTemplate = (dateFrom, dateTo) => {
       type="text"
       name="event-end-time"
       value="${dateEnd}"
+      ${isDisabled ? 'disabled' : ''}
     >
     </div>
   `;
 };
-const createEventFieldGroupPriceTemplate = (price) =>
+const createEventFieldGroupPriceTemplate = (price, isDisabled) =>
   `<div
       class="event__field-group event__field-group--price"
     >
@@ -156,6 +167,7 @@ const createEventFieldGroupPriceTemplate = (price) =>
         id="event-price-1"
         name="event-price"
         value="${price}"
+        ${isDisabled ? 'disabled' : ''}
       >
   </div>`;
 const createRollupButtonTemplate = (formType) =>
@@ -169,7 +181,7 @@ const createRollupButtonTemplate = (formType) =>
       </span>
     </button>`
     : '';
-const createEventSectionDestination = (destination, formType) => {
+const createEventSectionDestinationTemplate = (destination, formType) => {
   if (!destination) {
     return '';
   }
@@ -210,7 +222,7 @@ const createEventSectionDestination = (destination, formType) => {
     </section>
   `;
 };
-const createEventSectionOffers = (options, offers) => {
+const createEventSectionOffersTemplate = (options, offers, isDisabled) => {
   const offersListItemsTemplate = offers
     .map(
       (offer) =>
@@ -222,6 +234,7 @@ const createEventSectionOffers = (options, offers) => {
         name="event-${getStringWithoutSpaces(offer.title)}"
         ${options.find((option) => option.id === offer.id) ? 'checked=""' : ''}
         value="${offer.id}"
+        ${isDisabled ? 'disabled' : ''}
       >
       <label
         class="event__offer-label"
@@ -245,7 +258,27 @@ const createEventSectionOffers = (options, offers) => {
   </section>`
     : '';
 };
-const createFormTemplate = (point, destinations, offers, formType) => {
+const createSubmitButtonTemplate = (isDisabled, isSaving) => `
+  <button
+    class="event__save-btn btn btn--blue"
+    type="submit"
+    ${isDisabled ? 'disabled' : ''}
+  >
+  ${isSaving ? 'Saving' : 'Save'}
+  </button>`;
+const createResetButtonTemplate = (formType, isDisabled, isDeleting) =>
+  `<button
+    class="event__reset-btn"
+    type="reset"
+    ${isDisabled ? 'disabled' : ''}
+  >
+    ${isDeleting ? 'Deleting' : ViewFormTypeResetButtonText[formType]}
+  </button>`;
+const createFormTemplate = (
+  point,
+  destinations,
+  offers,
+  formType) => {
   const {
     type,
     destination,
@@ -253,43 +286,39 @@ const createFormTemplate = (point, destinations, offers, formType) => {
     dateTo,
     basePrice,
     offers: options,
+    isDisabled,
+    isDeleting,
+    isSaving
   } = point;
+
   const offersByType = findOffersByType(offers, type);
-  const eventTypeTemplate = createEventTypeTemplate(offers, type);
+  const eventTypeTemplate = createEventTypeTemplate(offers, type, isDisabled);
   const eventFieldGroupDestinationTemplate = createEventFieldGroupDestinationTemplate(
     type,
     destination,
     destinations,
+    isDisabled
   );
   const eventFieldGroupTimeTemplate = createEventFieldGroupTimeTemplate(
     dateFrom,
     dateTo,
+    isDisabled
   );
   const eventFieldGroupPriceTemplate = createEventFieldGroupPriceTemplate(
     basePrice,
+    isDisabled
   );
-  const submitButtonTemplate = `
-    <button
-      class="event__save-btn btn btn--blue"
-      type="submit"
-    >
-    Save
-    </button>`;
-  const resetButtonTemplate = `
-  <button
-    class="event__reset-btn"
-    type="reset"
-  >
-    ${ViewFormTypeButton[formType]}
-  </button>`;
+  const submitButtonTemplate = createSubmitButtonTemplate(isDisabled, isSaving);
+  const resetButtonTemplate = createResetButtonTemplate(formType, isDisabled, isDeleting);
   const rollupButtonTemplate = createRollupButtonTemplate(formType);
-  const eventSectionDestinationTemplate = createEventSectionDestination(
+  const eventSectionDestinationTemplate = createEventSectionDestinationTemplate(
     destination,
     formType,
   );
-  const eventSectionOffersTemplate = createEventSectionOffers(
+  const eventSectionOffersTemplate = createEventSectionOffersTemplate(
     options,
     offersByType,
+    isDisabled
   );
   return `
     <li class="trip-events__item">
@@ -346,7 +375,8 @@ export default class ViewForm extends AbstractStatefulView {
   };
 
   _restoreHandlers = () => {
-    this.#setDatetimePickers();
+    this.#setDatetimeFromDatepicker();
+    this.#setDatetimeToDatepicker();
     this.#setInnerHandlers();
     this.#restoreFormHandlers();
   };
@@ -354,47 +384,28 @@ export default class ViewForm extends AbstractStatefulView {
   #setInnerHandlers = () => {
     this.element
       .querySelector('.event__type-group')
-      .addEventListener('change', this.#typeSelectHandler);
+      .addEventListener('change', this.#typeChangeHandler);
     this.element
       .querySelector('.event__input--destination')
-      .addEventListener('change', this.#destinationSelectHandler);
+      .addEventListener('change', this.#destinationChangeHandler);
     Array.from(
       this.element.querySelectorAll('.event__offer-checkbox'),
     ).forEach((eventType) =>
-      eventType.addEventListener('change', this.#offersSelectHandler),
+      eventType.addEventListener('change', this.#offersChangeHandler),
     );
     this.element
       .querySelector('.event__input--price')
-      .addEventListener('change', this.#priceSelectHandler);
-    this.#setFormHandlers();
+      .addEventListener('change', this.#priceChangeHandler);
   };
 
-  #setFormHandlers = () => {
-    this.element
-      .querySelector('form')
-      .addEventListener('submit', this.#formSubmitHandler);
-    this.element
-      .querySelector('form')
-      .addEventListener('reset', this.#formResetHandler);
-    if (this.#formType === ViewFormType.EDIT_FORM) {
-      this.element
-        .querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#formRollupHandler);
-    }
-  };
-
-  #setDatetimePickers = () => {
-    this.#setDatetimeFromDatepicker();
-    this.#setDatetimeToDatepicker();
-  };
-
-  #typeSelectHandler = (evt) => {
+  #typeChangeHandler = (evt) => {
     this.updateElement({
       type: he.encode(evt.target.value),
+      offers: []
     });
   };
 
-  #destinationSelectHandler = (evt) => {
+  #destinationChangeHandler = (evt) => {
     const destinationValue = he.encode(evt.target.value.trim());
     const destination = findDestinationByName(
       this.#destinations,
@@ -409,7 +420,7 @@ export default class ViewForm extends AbstractStatefulView {
     });
   };
 
-  #offersSelectHandler = () => {
+  #offersChangeHandler = () => {
     const selectedOffers = Array.from(
       this.element.querySelectorAll('.event__offer-checkbox'),
     )
@@ -423,10 +434,12 @@ export default class ViewForm extends AbstractStatefulView {
     });
   };
 
-  #priceSelectHandler = (evt) => {
+  #priceChangeHandler = (evt) => {
     const basePrice = parseInt(he.encode(evt.target.value.trim()), RADIX);
     if (isNaN(basePrice) || basePrice < MIN_PRICE) {
-      evt.target.value = parseInt(he.encode(this._state.basePrice), RADIX);
+      this._state.isDisabled = true;
+      evt.target.value = parseInt(he.encode(String(this._state.basePrice)), RADIX);
+      this._state.isDisabled = false;
       return;
     }
     this.updateElement({
@@ -441,7 +454,7 @@ export default class ViewForm extends AbstractStatefulView {
         dateFormat: DATE_FORMAT_INPUT,
         enableTime: true,
         maxDate: this._state.dateTo,
-        onChange: this.#dateFromSelectHandler,
+        onChange: this.#onDateFromChange,
         'time_24hr': true,
         minuteIncrement: MINUTE_INCREMENT,
       },
@@ -455,22 +468,22 @@ export default class ViewForm extends AbstractStatefulView {
         dateFormat: DATE_FORMAT_INPUT,
         enableTime: true,
         minDate: this._state.dateFrom,
-        onChange: this.#dateToSelectHandler,
+        onChange: this.#onDateToChange,
         'time_24hr': true,
         minuteIncrement: MINUTE_INCREMENT,
       },
     );
   };
 
-  #dateFromSelectHandler = ([dateFrom]) => {
+  #onDateFromChange = ([dateFrom]) => {
     this.updateElement({
-      dateFrom: formatDateToISOString(he.encode(dateFrom)),
+      dateFrom: formatDateToISOString(he.encode(String(dateFrom))),
     });
   };
 
-  #dateToSelectHandler = ([dateTo]) => {
+  #onDateToChange = ([dateTo]) => {
     this.updateElement({
-      dateTo: formatDateToISOString(he.encode(dateTo)),
+      dateTo: formatDateToISOString(he.encode(String(dateTo))),
     });
   };
 
@@ -494,6 +507,7 @@ export default class ViewForm extends AbstractStatefulView {
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
   };
 
   #formSubmitHandler = (evt) => {
@@ -502,7 +516,14 @@ export default class ViewForm extends AbstractStatefulView {
   };
 
   setFormRollupHandler = (callback) => {
+    if(this.#formType === ViewFormType.ADD_FORM)
+    {
+      return;
+    }
     this._callback.click = callback;
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#formRollupHandler);
   };
 
   #formRollupHandler = (evt) => {
@@ -512,6 +533,9 @@ export default class ViewForm extends AbstractStatefulView {
 
   setFormResetHandler = (callback) => {
     this._callback.formReset = callback;
+    this.element
+      .querySelector('form')
+      .addEventListener('reset', this.#formResetHandler);
   };
 
   #formResetHandler = (evt) => {
@@ -526,16 +550,22 @@ export default class ViewForm extends AbstractStatefulView {
       offers: findOffersPointSelected(offersByType, point.offers),
       offersByType: offersByType,
       destination: findDestinationByID(destinations, point.destination),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
     };
   };
 
   static parseStateToPoint = (state) => {
-    const data = {
+    const point = {
       ...state,
       offers: state.offers.map((offer) => offer?.id),
       destination: state.destination.id,
     };
-    delete data.offersByType;
-    return data;
+    delete point.offersByType;
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+    return point;
   };
 }

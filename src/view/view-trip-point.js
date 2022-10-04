@@ -6,7 +6,7 @@ import {
   findDestinationByID,
   findOffersByType,
   findOffersPointSelected
-} from '../utils/point.js';
+} from '../utils/utils.js';
 const NO_ADDITIONAL_OFFERS = 'No additional offers';
 const createTripPointTemplate = (point, destination, offers) => {
   const { type, dateFrom, dateTo, basePrice } = point;
@@ -55,7 +55,7 @@ const createTripPointTemplate = (point, destination, offers) => {
             datetime="
             ${ getDateFormatBasic(dateTo) }
             T
-            ${ getDateFormatTime(dateTo) } ">
+            ${ getDateFormatTime(dateTo) }">
             ${ getDateFormatTime(dateTo) }
           </time>
         </p>
