@@ -49,7 +49,7 @@ export const sortByDay = (pointA, pointB) => {
   return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
 };
 export const sortByPrice = (pointA, pointB) =>
-  Number(pointA.basePrice) - Number(pointB.basePrice);
+  Number(pointB.basePrice) - Number(pointA.basePrice);
 const isPointSameOrAfterToday = (point) =>
   dayjs(getDateFormatBasic(point.dateFrom)).isSameOrAfter(
     getDateFormatBasic(dayjs(new Date())),
