@@ -23,7 +23,7 @@ const getWeightForNullDate = (dateA, dateB) => {
   return null;
 };
 
-export const getRandomInteger = (min, max) => {
+const getRandomInteger = (min, max) => {
   if (isNaN(min) || isNaN(max) || min < 0 || min >= max) {
     return false;
   }
