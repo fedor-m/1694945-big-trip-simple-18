@@ -454,7 +454,7 @@ export default class ViewForm extends AbstractStatefulView {
         dateFormat: DATE_FORMAT_INPUT,
         enableTime: true,
         maxDate: this._state.dateTo,
-        onChange: this.#onDateFromChange,
+        onChange: this.#dateFromChangeHandler,
         'time_24hr': true,
         minuteIncrement: MINUTE_INCREMENT,
       },
@@ -468,20 +468,20 @@ export default class ViewForm extends AbstractStatefulView {
         dateFormat: DATE_FORMAT_INPUT,
         enableTime: true,
         minDate: this._state.dateFrom,
-        onChange: this.#onDateToChange,
+        onChange: this.#dateToChangeHandler,
         'time_24hr': true,
         minuteIncrement: MINUTE_INCREMENT,
       },
     );
   };
 
-  #onDateFromChange = ([dateFrom]) => {
+  #dateFromChangeHandler = ([dateFrom]) => {
     this.updateElement({
       dateFrom: formatDateToISOString(he.encode(String(dateFrom))),
     });
   };
 
-  #onDateToChange = ([dateTo]) => {
+  #dateToChangeHandler = ([dateTo]) => {
     this.updateElement({
       dateTo: formatDateToISOString(he.encode(String(dateTo))),
     });

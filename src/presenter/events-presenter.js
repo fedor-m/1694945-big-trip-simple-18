@@ -9,13 +9,14 @@ import { SortType, SORT_TYPE_DEFAULT } from '../const/sort.js';
 import { filter, sortByDay, sortByPrice } from '../utils/utils.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
+import FiltersPresenter from './filters-presenter.js';
 import { UserAction, UpdateType } from '../const/actions.js';
-import { FILTER_TYPE_DEFAULT } from '../const/filters.js';
+import { FilterType, FILTER_TYPE_DEFAULT } from '../const/filters.js';
 
 const date = new Date().toISOString();
 const TimeLimit = {
-  LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1000,
+  LOWER: 350,
+  UPPER: 1000,
 };
 export default class EventsPresenter {
   #presenterContainer;
@@ -23,22 +24,30 @@ export default class EventsPresenter {
   #isLoading = true;
   #pointsModel = null;
   #filtersModel = null;
+  #filtersContainer = null;
   #noEventsView = null;
   #eventsListView = new ViewTripEventsList();
   #sortView = null;
-  #pointsPresenter = new Map();
+  #pointPresentersCollection = new Map();
   #newPointPresenter = null;
+  #filtersPresenter = null;
   #currentSortType = SORT_TYPE_DEFAULT;
-  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
-  constructor(presenterContainer, pointsModel, filtersModel) {
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER, TimeLimit.UPPER);
+  constructor(presenterContainer, pointsModel, filtersModel, filtersContainer) {
     this.#presenterContainer = presenterContainer;
     this.#loadingView = new ViewLoading();
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
+    this.#filtersContainer = filtersContainer;
     this.#newPointPresenter = new NewPointPresenter(
       this.#eventsListView.element,
       this.#pointsModel,
       this.#handleViewAction,
+    );
+    this.#filtersPresenter = new FiltersPresenter(
+      this.#filtersContainer,
+      this.#pointsModel,
+      this.#filtersModel
     );
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filtersModel.addObserver(this.#handleModelEvent);
@@ -47,6 +56,10 @@ export default class EventsPresenter {
   get points() {
     const points = this.#pointsModel.points;
     const filteredPoints = filter[this.currentFilter](points);
+    const filteredFuturePoints = filter[FilterType.FUTURE](points);
+    if(filteredFuturePoints.length === 0) {
+      this.#filtersPresenter.setDisabled(FilterType.FUTURE);
+    }
     switch (this.#currentSortType) {
       case SortType.DAY:
         return filteredPoints.sort(sortByDay);
@@ -73,6 +86,7 @@ export default class EventsPresenter {
   }
 
   init = () => {
+    this.#filtersPresenter.init();
     this.#renderEventsList();
   };
 
@@ -137,23 +151,23 @@ export default class EventsPresenter {
       this.#handleModeChange,
     );
     pointPresenter.init(point);
-    this.#pointsPresenter.set(point.id, pointPresenter);
+    this.#pointPresentersCollection.set(point.id, pointPresenter);
   };
 
   #handleModeChange = () => {
     this.#newPointPresenter.destroy();
-    this.#pointsPresenter.forEach((presenter) => presenter.resetView());
+    this.#pointPresentersCollection.forEach((presenter) => presenter.resetView());
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsPresenter.get(update.id).setSaving();
+        this.#pointPresentersCollection.get(update.id).setSaving();
         try {
           await this.#pointsModel.updatePoint(updateType, update);
         } catch (err) {
-          this.#pointsPresenter.get(update.id).setAborting();
+          this.#pointPresentersCollection.get(update.id).setAborting();
         }
         break;
       case UserAction.ADD_POINT:
@@ -165,11 +179,11 @@ export default class EventsPresenter {
         }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsPresenter.get(update.id).setDeleting();
+        this.#pointPresentersCollection.get(update.id).setDeleting();
         try {
           await this.#pointsModel.deletePoint(updateType, update);
         } catch (err) {
-          this.#pointsPresenter.get(update.id).setAborting();
+          this.#pointPresentersCollection.get(update.id).setAborting();
         }
         break;
     }
@@ -179,7 +193,7 @@ export default class EventsPresenter {
   #handleModelEvent = (updateType, point) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#pointsPresenter.get(point.id).init(point);
+        this.#pointPresentersCollection.get(point.id).init(point);
         break;
       case UpdateType.MINOR:
         this.#clearEventsList();
@@ -210,8 +224,8 @@ export default class EventsPresenter {
 
   #clearEventsList = ({ resetSortType = false } = {}) => {
     this.#newPointPresenter.destroy();
-    this.#pointsPresenter.forEach((presenter) => presenter.destroy());
-    this.#pointsPresenter.clear();
+    this.#pointPresentersCollection.forEach((presenter) => presenter.destroy());
+    this.#pointPresentersCollection.clear();
     remove(this.#sortView);
     remove(this.#loadingView);
     if(this.#noEventsView)

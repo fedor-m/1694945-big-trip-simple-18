@@ -2,7 +2,7 @@ import { remove, render, replace } from '../framework/render.js';
 import { UpdateType } from '../const/actions.js';
 import ViewFilters from '../view/view-filters.js';
 
-export default class FilterPresenter {
+export default class FiltersPresenter {
   #filtersModel = null;
   #pointsModel = null;
   #filtersContainer = null;
@@ -23,7 +23,6 @@ export default class FilterPresenter {
 
   init = () => {
     const prevFiltersComponent = this.#filtersComponent;
-
     this.#filtersComponent = new ViewFilters(this.#filtersModel.currentFilter);
     this.#filtersComponent.setFilterChangeHandler(this.#handleFiltersTypeChange);
 
@@ -34,6 +33,12 @@ export default class FilterPresenter {
 
     replace(this.#filtersComponent, prevFiltersComponent);
     remove(prevFiltersComponent);
+  };
+
+  setDisabled = (filter) => {
+    const filterToDisable = this.#filtersComponent.element.querySelector(`.trip-filters__filter-input[value="${filter}"]`);
+
+    filterToDisable.disabled = true;
   };
 
   #handleModelEvent = () => {
