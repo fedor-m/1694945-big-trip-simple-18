@@ -37,7 +37,7 @@ export default class NewPointPresenter {
       RenderPosition.AFTERBEGIN,
     );
     document.querySelector('.trip-main__event-add-btn').disabled = true;
-    document.addEventListener('keydown', this.#onEscKeyDown);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   destroy = () => {
@@ -47,7 +47,7 @@ export default class NewPointPresenter {
     this.#destroyCallback?.();
     remove(this.#addEventComponent);
     this.#addEventComponent = null;
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #setFormHandlers = () => {
@@ -88,7 +88,7 @@ export default class NewPointPresenter {
     document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 
-  #onEscKeyDown = (evt) => {
+  #escKeyDownHandler = (evt) => {
     if (isEscKey(evt.key)) {
       evt.preventDefault();
       this.destroy();
